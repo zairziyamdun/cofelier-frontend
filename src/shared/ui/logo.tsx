@@ -1,13 +1,14 @@
 import {
   MARK_CUP_PATH,
+  MARK_INLINE_VIEWBOX,
   MARK_NO_STEAM_VIEWBOX,
   MARK_STEAM_PATH,
-  MARK_VIEWBOX,
 } from "@/shared/brand";
 import { cn } from "@/shared/lib/utils";
 
 // Векторный знак бренда: буква C с чашкой — цветом текста (currentColor),
-// пар — медный. Без пара (steam={false}) — как в favicon (app/icon.svg).
+// пар — медный. Рамка центрирована на букве C, поэтому рядом со словом в
+// flex-ряду с items-center знак стоит ровно. steam={false} — без пара.
 export function LogoMark({
   className,
   steam = true,
@@ -17,9 +18,9 @@ export function LogoMark({
 }) {
   return (
     <svg
-      viewBox={steam ? MARK_VIEWBOX : MARK_NO_STEAM_VIEWBOX}
+      viewBox={steam ? MARK_INLINE_VIEWBOX : MARK_NO_STEAM_VIEWBOX}
       aria-hidden="true"
-      className={cn("size-8 shrink-0", className)}
+      className={cn("size-10 shrink-0", className)}
     >
       <path fill="currentColor" fillRule="evenodd" d={MARK_CUP_PATH} />
       {steam && (
@@ -33,7 +34,7 @@ export function LogoMark({
 export function Logo({ className }: { className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
-      <LogoMark className="size-9" />
+      <LogoMark className="size-11" />
       <span className="hidden font-heading text-2xl md:inline">Cofelier</span>
     </span>
   );

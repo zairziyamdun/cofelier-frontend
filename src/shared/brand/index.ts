@@ -4,6 +4,7 @@ export { default as brandLogo } from "./cofelier-logo.png";
 // cofelier-mark-dark.svg (тёмный фон) и cofelier-mark-light.svg (светлый).
 export {
   MARK_CUP_PATH,
+  MARK_INLINE_VIEWBOX,
   MARK_NO_STEAM_VIEWBOX,
   MARK_STEAM_PATH,
   MARK_VIEWBOX,
