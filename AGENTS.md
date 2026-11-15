@@ -111,7 +111,7 @@ pnpm build         # прод-сборка
 pnpm start         # запуск сборки
 pnpm lint          # eslint
 pnpm lint:fsd      # steiger ./src — правила FSD
-pnpm typecheck     # tsc --noEmit
+pnpm typecheck     # next typegen && tsc --noEmit (типы LayoutProps/PageProps — из typegen)
 pnpm format        # prettier --write (код; *.md и .claude не трогает)
 pnpm format:check  # как в CI
 pnpm dlx shadcn@latest add <component>   # новый компонент в src/shared/ui
