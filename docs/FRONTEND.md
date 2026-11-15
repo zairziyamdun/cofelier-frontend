@@ -242,11 +242,14 @@ src/entities/menu-item/
 - **Иконки** — `lucide-react`.
 - **Картинки** — `next/image` с `alt`; фото со стоков — в `public/` или
   внешним доменом из `next.config.ts`.
-- **Логотип** (есть): полный растровый — `brandLogo` из `shared/brand`
-  (`cofelier-logo.png`, hero на главной); знак — `LogoMark` в
-  `shared/ui/logo.tsx`, SVG по мотивам логотипа (`steam={false}` — без пара);
-  favicon — `app/icon.svg`. Лучше заменить знак на векторный исходник
-  логотипа, когда он будет.
+- **Логотип** (есть): знак векторизован из логотипа бренда —
+  `shared/brand/mark-paths.ts` (буква C с чашкой и пар отдельными путями).
+  `LogoMark` в `shared/ui/logo.tsx` красит букву с чашкой в `currentColor`
+  (угольный на светлом, кремовый в подвале), пар — медный; `steam={false}` —
+  без пара. Готовые файлы: `cofelier-mark-light.svg` (для светлого фона) и
+  `cofelier-mark-dark.svg` (для тёмного) в `shared/brand`. Favicon
+  `app/icon.svg` — знак без пара на угольном. Полный растровый логотип со
+  словом — `brandLogo` (`cofelier-logo.png`, hero на главной).
 - **Цена** — `formatPrice` из `shared/lib/format-price`: «1 500 ₸»
   (`currencyDisplay: "narrowSymbol"`, иначе ru-RU пишет «KZT»).
 
