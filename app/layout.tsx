@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Manrope, Playfair_Display } from "next/font/google";
+
+import { Providers } from "@/app/providers";
+import { cn } from "@/shared/lib/utils";
 import "@/app/styles/globals.css";
 
 const manrope = Manrope({
@@ -21,9 +24,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ru"
-      className={`${manrope.variable} ${playfair.variable} h-full antialiased`}
+      className={cn("h-full antialiased", manrope.variable, playfair.variable)}
     >
-      <body className="flex min-h-full flex-col font-sans">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

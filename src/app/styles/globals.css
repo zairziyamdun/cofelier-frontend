@@ -1,5 +1,10 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
+@custom-variant dark (&:is(.dark *));
+
+/* Бренд Cofelier */
 :root {
   --charcoal: #1c1a18;
   --cream: #ede6da;
@@ -7,7 +12,70 @@
 
   --background: var(--cream);
   --foreground: var(--charcoal);
-  --accent: var(--copper);
+  --card: #f5f0e8;
+  --card-foreground: var(--charcoal);
+  --popover: #f5f0e8;
+  --popover-foreground: var(--charcoal);
+  --primary: var(--charcoal);
+  --primary-foreground: var(--cream);
+  --secondary: #e2d9ca;
+  --secondary-foreground: var(--charcoal);
+  --muted: #e2d9ca;
+  --muted-foreground: #6b6259;
+  --accent: #e2d9ca;
+  --accent-foreground: var(--charcoal);
+  --destructive: #b3261e;
+  --border: #d6cbb9;
+  --input: #d6cbb9;
+  --ring: var(--copper);
+  --chart-1: var(--copper);
+  --chart-2: #8a5526;
+  --chart-3: #d9a066;
+  --chart-4: #6b6259;
+  --chart-5: var(--charcoal);
+  --radius: 0.625rem;
+  --sidebar: #f5f0e8;
+  --sidebar-foreground: var(--charcoal);
+  --sidebar-primary: var(--charcoal);
+  --sidebar-primary-foreground: var(--cream);
+  --sidebar-accent: #e2d9ca;
+  --sidebar-accent-foreground: var(--charcoal);
+  --sidebar-border: #d6cbb9;
+  --sidebar-ring: var(--copper);
+}
+
+.dark {
+  --background: var(--charcoal);
+  --foreground: var(--cream);
+  --card: #262320;
+  --card-foreground: var(--cream);
+  --popover: #262320;
+  --popover-foreground: var(--cream);
+  --primary: var(--cream);
+  --primary-foreground: var(--charcoal);
+  --secondary: #322e2a;
+  --secondary-foreground: var(--cream);
+  --muted: #322e2a;
+  --muted-foreground: #a89f93;
+  --accent: #322e2a;
+  --accent-foreground: var(--cream);
+  --destructive: #e5605a;
+  --border: rgb(237 230 218 / 12%);
+  --input: rgb(237 230 218 / 16%);
+  --ring: var(--copper);
+  --chart-1: var(--copper);
+  --chart-2: #d9a066;
+  --chart-3: #8a5526;
+  --chart-4: #a89f93;
+  --chart-5: var(--cream);
+  --sidebar: #262320;
+  --sidebar-foreground: var(--cream);
+  --sidebar-primary: var(--copper);
+  --sidebar-primary-foreground: var(--cream);
+  --sidebar-accent: #322e2a;
+  --sidebar-accent-foreground: var(--cream);
+  --sidebar-border: rgb(237 230 218 / 12%);
+  --sidebar-ring: var(--copper);
 }
 
 @theme inline {
@@ -15,15 +83,58 @@
   --color-cream: var(--cream);
   --color-copper: var(--copper);
 
+  --font-sans: var(--font-manrope);
+  --font-heading: var(--font-playfair);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-sans: var(--font-manrope);
-  --font-display: var(--font-playfair);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }
