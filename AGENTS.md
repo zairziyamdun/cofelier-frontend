@@ -6,7 +6,7 @@ TanStack Query, pnpm. Комментарии и доки — на русском
 
 Этот файл — главный файл правил для агентов. `CLAUDE.md` только подключает его.
 
-**Текущий этап:** 1 — каркас (см. [docs/OVERVIEW.md](docs/OVERVIEW.md), «Этапы»).
+**Текущий этап:** 2 — меню (см. [docs/OVERVIEW.md](docs/OVERVIEW.md), «Этапы»).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
@@ -26,7 +26,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   только вниз; в слайс — только через его `index.ts`. Слой pages из FSD назван
   `views`, чтобы не конфликтовать с роутингом Next.js.
 - **Данные сервера** — только через TanStack Query и хуки слайса; типы — только
-  сгенерированные из Swagger бэкенда, руками не писать.
+  сгенерированные из Swagger бэкенда (`ApiSchemas`), руками не писать.
+- **`cacheComponents` включён:** серверная загрузка — в async-компоненте под
+  `<Suspense>` после `await connection()` (FRONTEND.md §2, образец —
+  `views/menu`).
 - **Права** решает бэкенд; на фронте скрытие кнопок — удобство, не защита.
 - **После правок:** `pnpm lint`, `pnpm lint:fsd`, `pnpm format:check`,
   `pnpm typecheck`; перед PR — ещё `pnpm build`.
@@ -114,7 +117,10 @@ pnpm lint:fsd      # steiger ./src — правила FSD
 pnpm typecheck     # next typegen && tsc --noEmit (типы LayoutProps/PageProps — из typegen)
 pnpm format        # prettier --write (код; *.md и .claude не трогает)
 pnpm format:check  # как в CI
+pnpm sync:api      # схема из ../cofelier-backend → openapi/openapi.json → типы
+pnpm gen:api       # openapi/openapi.json → src/shared/api/schema.gen.ts (и postinstall)
 pnpm dlx shadcn@latest add <component>   # новый компонент в src/shared/ui
 ```
 
-Планируется: `pnpm gen:api` (openapi-typescript из Swagger бэкенда, этап 2).
+Первый запуск: `cp .env.example .env.local` → `pnpm install` → бэкенд
+запущен (`cofelier-backend`, с сидами) → `pnpm dev` → `http://localhost:3000/menu`.

@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Генерируется pnpm gen:api из openapi/openapi.json
+/src/shared/api/schema.gen.ts

@@ -10,6 +10,8 @@
 | React 19.3 | UI |
 | TypeScript 5 (`strict: true`) | язык |
 | @tanstack/react-query 5 | серверное состояние, кеш, гидрация с сервера |
+| openapi-fetch 0.17 | типизированный HTTP-клиент по схеме бэкенда |
+| openapi-typescript 7 | типы API из `openapi/openapi.json` |
 
 ## Стили и UI
 
@@ -26,7 +28,6 @@
 
 | Технология | Этап | Для чего |
 | --- | --- | --- |
-| openapi-typescript | 2 | типы API из Swagger бэкенда |
 | GSAP + ScrollTrigger + @gsap/react | 7 | анимации |
 | Three.js | 7 | 3D |
 | Vitest | 7 | unit-тесты `lib/` |
