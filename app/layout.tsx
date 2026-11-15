@@ -16,7 +16,10 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Cofelier — Мастерская вашего кофе",
+  title: {
+    default: "Cofelier — Мастерская вашего кофе",
+    template: "%s — Cofelier",
+  },
   description: "Кофейня-мастерская со своей обжаркой",
 };
 

@@ -11,18 +11,22 @@ Next.js 16 (App Router) + Tailwind 4 + FSD, TanStack Query, shadcn/ui. Что з
 ## 1. Структура
 
 ```
-app/                  роутинг Next.js — только page.tsx / layout.tsx / route.ts
-  (site)/             публичный сайт и кабинет клиента       (план, этап 2)
-  (admin)/            панель сотрудников                     (план, этап 3)
-  layout.tsx          корневой layout: шрифты, <Providers>   (есть)
+app/                  роутинг Next.js — page.tsx / layout.tsx / error.tsx / route.ts
+  (site)/             публичный сайт: /, /menu                     (есть)
+                      о нас, контакты, корзина, кабинет            (план)
+  (admin)/            панель сотрудников                           (план, этап 3)
+  layout.tsx          корневой layout: шрифты, <Providers>, title  (есть)
 src/
-  app/                слой FSD app: providers/, styles/      (есть)
-  views/              экраны страниц, собранные из виджетов  (есть: home)
-  widgets/            header, hero, menu, gallery, footer    (план)
-  features/           cart, auth-login, change-order-status  (план)
-  entities/           order, menu-item, user                 (план)
-  shared/             ui (shadcn), lib, config, api          (есть)
-public/               статика: логотип, favicon.svg
+  app/                слой FSD app: providers/, layouts/, styles/  (есть)
+  views/              экраны страниц: home, menu                   (есть)
+  widgets/            header, footer, menu-list                    (есть)
+                      hero, gallery                                (план)
+  features/           cart, auth-login, change-order-status        (план)
+  entities/           menu-item                                    (есть)
+                      order, user                                  (план)
+  shared/             ui (shadcn, logo, error-state), lib, config, api (есть)
+openapi/              openapi.json — копия схемы бэкенда (коммитится)
+public/               статика: логотип, favicon.svg                (план)
 docs/                 документация
 ```
 
@@ -46,7 +50,9 @@ docs/                 документация
 
 Алиас один — `@/*` → `src/*`. Проверка — Steiger (`pnpm lint:fsd`,
 `steiger.config.mjs`, пресет `recommended`); в `src/app` отключено
-`fsd/segments-by-purpose` ради сегмента `providers`.
+`fsd/segments-by-purpose` ради сегментов `providers` и `layouts`, а везде —
+`fsd/insignificant-slice`: Steiger не знает слой `views` и не видит импорты
+из него, поэтому любой виджет страницы для него «без ссылок».
 
 ### Устройство слайса
 
@@ -70,8 +76,13 @@ src/entities/menu-item/
 - `page.tsx` — одна строка: `export { MenuPage as default } from "@/views/menu"`.
   Метаданные (`metadata`, `generateMetadata`) — тоже в `page.tsx`, данные для
   них берутся функцией из `views` или `entities`.
-- `(site)/layout.tsx` — шапка и подвал сайта; `(admin)/layout.tsx` — боковое
-  меню панели. Разметки самих layout — виджеты.
+- `(site)/layout.tsx` — реэкспорт `SiteLayout` из `@/app/layouts` (шапка и
+  подвал — виджеты); `(admin)/layout.tsx` — так же, боковое меню панели.
+- `error.tsx` — клиентский и тонкий: `ErrorState` из `shared/ui` и
+  `useQueryRetry(retry)` из `shared/api`. Реэкспортировать его из `views`
+  нельзя: клиентский файл потянул бы в бандл серверный экран.
+- Заголовок страницы — `metadata.title` в `page.tsx`; шаблон
+  `%s — Cofelier` задан в корневом layout.
 - **Доступ** (план, этап 3): JWT лежит в `httpOnly`-cookie, выданной бэкендом.
   Next.js проверяет роль на сервере (proxy/middleware или серверный layout
   `(admin)`) запросом `GET /auth/me` и делает redirect на вход. Окончательное
@@ -83,8 +94,22 @@ src/entities/menu-item/
 
 - По умолчанию — Server Component. `"use client"` — в листовых компонентах с
   состоянием, эффектами, браузерными API, TanStack Query, GSAP.
-- Публичные страницы (меню, главная) рендерятся на сервере ради SEO: данные —
-  `prefetchQuery` на сервере + `HydrationBoundary`, клиент подхватывает кеш.
+- Публичные страницы рендерятся на сервере ради SEO. Включён
+  `cacheComponents`, поэтому загрузка данных на сервере устроена так
+  (образец — `views/menu/ui/MenuPage.tsx`):
+  1. экран синхронный, данные — в отдельном async-компоненте внутри
+     `<Suspense fallback={<Skeleton />}>`;
+  2. в нём первым делом `await connection()` — иначе Next пойдёт в API во
+     время сборки и упадёт в CI без бэкенда;
+  3. `prefetchQuery(xxxQueryOptions())` → `<HydrationBoundary
+     state={dehydrate(queryClient)}>` → клиентский виджет с
+     `useSuspenseQuery` по тем же опциям.
+
+  Итог — частичный пререндер (`◐` в `next build`): оболочка статическая,
+  данные приходят потоком на каждый запрос. Ошибка загрузки — в `error.tsx`
+  сегмента.
+- `new Date()` и `Math.random()` в серверных компонентах без `connection()` —
+  ошибка пререндера (cacheComponents).
 - Секреты и серверные адреса — только в серверном коде; клиентская переменная
   — с префиксом `NEXT_PUBLIC_` и считается публичной.
 
@@ -92,15 +117,24 @@ src/entities/menu-item/
 
 - **Клиент запросов** (есть: `shared/api/query-client.ts`): на сервере —
   новый `QueryClient` на каждый запрос, в браузере — один. `staleTime` 60 с.
-- **HTTP** (план, этап 2): одна обёртка над `fetch` в `shared/api/http.ts` —
-  базовый адрес из `shared/config`, `credentials: "include"` для cookie,
-  разбор ошибки в один тип `ApiError`. В компонентах голого `fetch` нет.
-- **Контракт** (план, этап 2): `pnpm gen:api` берёт Swagger JSON бэкенда и
-  генерирует `shared/api/schema.gen.ts` (`openapi-typescript`). Типы ответов
-  берутся оттуда; не хватает поля — правится DTO бэкенда, а не ручной тип.
-- **Запросы сущности** — в `entities/<x>/api/`: функция запроса, хук
-  `useXxxQuery`, фабрика ключей `xxxKeys` (`all`, `list(params)`,
-  `detail(id)`). Литерал `queryKey: ["menu"]` — нельзя.
+- **HTTP** (есть): `http` из `shared/api/http.ts` — `openapi-fetch`,
+  типизированный схемой: `http.GET("/api/menu")`. Базовый адрес —
+  `API_URL` из `shared/config` (`NEXT_PUBLIC_API_URL`, без `/api`),
+  `credentials: "include"` для cookie. `unwrap(result)` отдаёт данные или
+  бросает `ApiError` с текстом бэкенда. Голого `fetch` нет.
+- **Контракт** (есть): схема бэкенда лежит в `openapi/openapi.json`
+  (коммитится). `pnpm sync:api` берёт свежую из `../cofelier-backend`
+  (`openapi:export`, без БД) и генерирует типы; `pnpm gen:api` (и
+  `postinstall`) — только генерация `shared/api/schema.gen.ts`, этот файл
+  не коммитится. Типы — `ApiSchemas["XxxDto"]`; не хватает поля — правится
+  DTO бэкенда и `pnpm sync:api`, а не ручной тип.
+- **Запросы сущности** — в `entities/<x>/api/`: функция запроса, фабрика
+  ключей `xxxKeys`, `xxxQueryOptions()` (общие для сервера и браузера) и хук
+  (`usePublicMenu` → `useSuspenseQuery`). Литерал `queryKey: ["menu"]` —
+  нельзя. Образец — `entities/menu-item/api/menu.queries.ts`.
+- **Повтор после ошибки** — `useQueryRetry(retry)`: сначала сброс ошибок
+  запросов, потом `retry()` Next; без сброса запрос с ошибкой из кеша снова
+  бросит её.
 - **Мутации** — в `features/<x>/api/`: хук `useXxxMutation`, в `onSuccess` —
   инвалидация всех затронутых ключей, тост — в хуке, а не в компоненте.
 - **Живые обновления** (план, этап 5): панель заказов слушает WebSocket-шлюз
@@ -127,6 +161,10 @@ src/entities/menu-item/
 - **Иконки** — `lucide-react`.
 - **Картинки** — `next/image` с `alt`; фото со стоков — в `public/` или
   внешним доменом из `next.config.ts`.
+- **Логотип** (есть, временный): `Logo` / `LogoMark` в `shared/ui/logo.tsx` —
+  набросок знака в SVG; заменить на файлы готового логотипа.
+- **Цена** — `formatPrice` из `entities/menu-item`: «1 500 ₸»
+  (`currencyDisplay: "narrowSymbol"`, иначе ru-RU пишет «KZT»).
 
 ## 5. Анимации (этап 7)
 

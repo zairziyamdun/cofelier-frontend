@@ -1,0 +1,121 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["Health"]
+      }
+    },
+    "/api/menu": {
+      "get": {
+        "operationId": "MenuController_getMenu",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MenuCategoryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Публичное меню: категории с позициями",
+        "tags": ["menu"]
+      }
+    }
+  },
+  "info": {
+    "title": "Cofelier API",
+    "description": "API кофейни Cofelier: меню, вход, заказы",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "MenuItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 3
+          },
+          "name": {
+            "type": "string",
+            "example": "Капучино"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Эспрессо, молоко и шелковистая пенка"
+          },
+          "portion": {
+            "type": "string",
+            "nullable": true,
+            "example": "300 мл"
+          },
+          "price": {
+            "type": "number",
+            "description": "Цена в целых тенге",
+            "example": 1500
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "description": "false — позиция в стоп-листе: видна, но заказать нельзя"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "portion",
+          "price",
+          "imageUrl",
+          "isAvailable"
+        ]
+      },
+      "MenuCategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "slug": {
+            "type": "string",
+            "example": "espresso"
+          },
+          "name": {
+            "type": "string",
+            "example": "Эспрессо и классика"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MenuItemDto"
+            }
+          }
+        },
+        "required": ["id", "slug", "name", "items"]
+      }
+    }
+  }
+}
