@@ -18,6 +18,8 @@
 | --- | --- | --- |
 | install | <PASS / FAIL / ENV_ERROR / PRE_EXISTING / NOT RUN> | |
 | lint | | |
+| fsd | | |
+| format | | |
 | typecheck | | |
 | build | | |
 
