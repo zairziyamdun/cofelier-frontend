@@ -13,8 +13,8 @@ let stableTimer: ReturnType<typeof setTimeout> | undefined;
 
 const RETRY_MIN_MS = 2_000;
 const RETRY_MAX_MS = 30_000;
-// Сервер сначала принимает подключение и лишь потом проверяет токен, поэтому
-// «connect» ещё не успех: паузу сбрасываем, только если связь продержалась.
+// Паузу сбрасываем, только если связь продержалась: старый API принимал
+// подключение и закрывал его сразу после «connect».
 const STABLE_MS = 5_000;
 
 // Cookie сайта до API на другом домене не доходит: перед каждым подключением
@@ -36,9 +36,9 @@ function reconnectNow() {
   socket.connect();
 }
 
-// Отказ сервера («io server disconnect»: токен не успел обновиться, сессия
-// истекла) socket.io сам не переподключает — без этого индикатор навсегда
-// оставался бы «Нет связи». Пробуем снова с растущей паузой.
+// Отказ сервера (connect_error из middleware или «io server disconnect»:
+// токен не успел обновиться, сессия истекла) socket.io сам не повторяет — без
+// этого индикатор навсегда оставался бы «Нет связи». Пробуем с растущей паузой.
 function scheduleRetry() {
   clearTimeout(retryTimer);
   retryDelay = Math.min(
@@ -51,6 +51,11 @@ function scheduleRetry() {
 function handleDisconnect(reason: Socket.DisconnectReason) {
   clearTimeout(stableTimer);
   if (reason === "io server disconnect") scheduleRetry();
+}
+
+// Сетевые ошибки socket.io повторяет сам (active = true), отказ — нет.
+function handleConnectError() {
+  if (socket && !socket.active) scheduleRetry();
 }
 
 function handleConnect() {
@@ -75,6 +80,7 @@ export function acquireOrdersSocket(): Socket {
     });
     socket.on("disconnect", handleDisconnect);
     socket.on("connect", handleConnect);
+    socket.on("connect_error", handleConnectError);
     document.addEventListener("visibilitychange", handleVisibility);
     window.addEventListener("online", reconnectNow);
   }
@@ -93,6 +99,7 @@ export function releaseOrdersSocket(): void {
     window.removeEventListener("online", reconnectNow);
     socket.off("disconnect", handleDisconnect);
     socket.off("connect", handleConnect);
+    socket.off("connect_error", handleConnectError);
     socket.disconnect();
     socket = null;
   }
