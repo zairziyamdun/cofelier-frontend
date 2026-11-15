@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+:root {
+  --charcoal: #1c1a18;
+  --cream: #ede6da;
+  --copper: #b87333;
+
+  --background: var(--cream);
+  --foreground: var(--charcoal);
+  --accent: var(--copper);
+}
+
+@theme inline {
+  --color-charcoal: var(--charcoal);
+  --color-cream: var(--cream);
+  --color-copper: var(--copper);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+
+  --font-sans: var(--font-manrope);
+  --font-display: var(--font-playfair);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
