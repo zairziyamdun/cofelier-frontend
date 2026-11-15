@@ -13,28 +13,28 @@ Next.js 16 (App Router) + Tailwind 4 + FSD, TanStack Query, shadcn/ui. Что з
 ```
 app/                  роутинг Next.js — page.tsx / layout.tsx / error.tsx / route.ts
   (site)/             сайт: /, /menu, /about, /contacts,           (есть)
-                      /login, /register, /account
-                      корзина                                      (план, этап 5)
-  (admin)/admin/      панель: обзор, menu (редактор), staff (список) (есть)
-                      orders, stats                                (заглушки, этапы 5, 7)
+                      /login, /register, /account (+ мои заказы), /cart (есть)
+  (admin)/admin/      панель: обзор, orders (живая очередь),       (есть)
+                      menu (редактор), staff (список)
+                      stats                                        (заглушка, этап 7)
   icon.svg            favicon: знак без пара                       (есть)
   layout.tsx          корневой layout: шрифты, <Providers>, title  (есть)
 proxy.ts              без cookie на /admin и /account — сразу на вход (есть)
 src/
   app/                слой FSD app: providers/, layouts/ (Site, Admin), styles/ (есть)
-  views/              home, menu, about, contacts, auth, account, admin (есть)
+  views/              home, menu, about, contacts, auth, account, cart, admin (есть)
   widgets/            header, footer, hero, menu-list, admin-sidebar,
-                      menu-editor                                  (есть)
+                      menu-editor, cart-panel, my-orders, order-queue (есть)
                       gallery                                      (план, этап 7)
   features/           auth/login, auth/register, auth/logout       (есть)
                       menu-admin/item-editor, menu-admin/stop-list,
-                      menu-admin/category-editor                   (есть)
-                      cart, change-order-status                    (план, этап 5)
-  entities/           menu-item, user                              (есть)
-                      order                                        (план, этап 5)
-  shared/             ui, lib, api, brand,                         (есть)
+                      menu-admin/category-editor,
+                      cart, checkout, order-status                 (есть)
+  entities/           menu-item, user, order                       (есть)
+  shared/             ui, lib (format-price, format-time), api, brand, (есть)
                       config (env, site, admin-sections),
-                      session (только сервер: текущий пользователь)
+                      session (только сервер: текущий пользователь),
+                      realtime (одно подключение socket.io на вкладку)
 openapi/              openapi.json — копия схемы бэкенда (коммитится)
 docs/                 документация
 ```
@@ -178,9 +178,27 @@ src/entities/menu-item/
   бросит её.
 - **Мутации** — в `features/<x>/api/`: хук `useXxxMutation`, в `onSuccess` —
   инвалидация всех затронутых ключей, тост — в хуке, а не в компоненте.
-- **Живые обновления** (план, этап 5): панель заказов слушает WebSocket-шлюз
-  бэкенда и обновляет кеш `orderKeys` (`setQueryData` / инвалидация), а не
-  держит заказы в отдельном состоянии.
+- **Живые обновления** (есть): `useLiveOrders()` из `entities/order`
+  подписывается на `/orders` (socket.io, `shared/realtime`) и кладёт события
+  прямо в кеш TanStack: `order.created` — в очередь, `order.updated` — в
+  очередь (неактивный заказ уходит) и в «мои заказы». Отдельного состояния
+  заказов нет. После переподключения — `invalidateQueries(orderKeys.all)`:
+  события за разрыв могли потеряться. Поэтому у запросов заказов
+  `staleTime: Infinity` — их не опрашиваем.
+- **Сокет один на вкладку**: `acquireOrdersSocket` / `releaseOrdersSocket` —
+  счётчик держателей, последний закрывает. Авторизация — та же httpOnly-cookie
+  (`withCredentials`); без входа сервер сразу отключает.
+- **Корзина** (`features/cart`) — в `localStorage` через
+  `useSyncExternalStore`: на сервере и при гидратации снимок `null` («ещё не
+  загружена» — скелетон или неактивная кнопка), вкладки синхронизируются
+  событием `storage`. Цена в корзине — только для показа: сумму считает
+  сервер, в запрос уходят `menuItemId` и `quantity`. Модуль помечен
+  `"use client"`: серверная шапка импортирует `CartLink` через тот же index.
+- **Оформление** (`features/checkout`) не импортирует корзину (слайсы одного
+  слоя): `CartPanel` (виджет) передаёт строки и очищает корзину в `onPlaced`.
+- Время в клиентских компонентах (`new Date()`) — только после загрузки
+  данных или в `useState(() => …)` внутри уже клиентской ветки: при
+  пререндере с cacheComponents чтение времени — ошибка.
 
 ## 4. UI и бренд
 
@@ -194,7 +212,8 @@ src/entities/menu-item/
 - **Сетка**: шаг 8px → в Tailwind значения, кратные `2` (`p-2`, `gap-4`,
   `mt-6`). Нечётные (`p-3`) — только с причиной.
 - **Mobile-first**: база — 320px, брейкпоинты `sm:` `md:` `lg:` добавляют.
-  В шапке на телефоне только знак, на `md:` — знак и слово.
+  Шапка на телефоне — две строки: знак, корзина и профиль сверху, разделы
+  под ними; с `sm:` — одна строка, с `md:` рядом со знаком появляется слово.
 - **shadcn/ui** (есть: стиль `base-nova`, примитивы `@base-ui/react`):
   компоненты в `src/shared/ui`, импорт `@/shared/ui/button`. Используется в
   первую очередь в админке; на публичном сайте — свои виджеты в духе бренда.
@@ -216,7 +235,7 @@ src/entities/menu-item/
   `shared/ui/logo.tsx`, SVG по мотивам логотипа (`steam={false}` — без пара);
   favicon — `app/icon.svg`. Лучше заменить знак на векторный исходник
   логотипа, когда он будет.
-- **Цена** — `formatPrice` из `entities/menu-item`: «1 500 ₸»
+- **Цена** — `formatPrice` из `shared/lib/format-price`: «1 500 ₸»
   (`currencyDisplay: "narrowSymbol"`, иначе ru-RU пишет «KZT»).
 
 ### Контент сайта

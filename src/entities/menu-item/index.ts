@@ -6,7 +6,6 @@ export {
   useManagedMenu,
   usePublicMenu,
 } from "./api/menu.queries";
-export { formatPrice } from "./lib/format-price";
 export type {
   ManagedMenuCategory,
   ManagedMenuItem,

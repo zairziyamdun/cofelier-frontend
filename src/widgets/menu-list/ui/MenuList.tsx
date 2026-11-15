@@ -1,6 +1,7 @@
 "use client";
 
 import { MenuItemCard, usePublicMenu } from "@/entities/menu-item";
+import { AddToCartButton } from "@/features/cart";
 
 export function MenuList() {
   const { data: categories } = usePublicMenu();
@@ -35,7 +36,7 @@ export function MenuList() {
           key={category.id}
           id={category.slug}
           aria-labelledby={`${category.slug}-title`}
-          className="scroll-mt-24"
+          className="scroll-mt-36 sm:scroll-mt-24"
         >
           <h2
             id={`${category.slug}-title`}
@@ -45,7 +46,17 @@ export function MenuList() {
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {category.items.map((item) => (
-              <MenuItemCard key={item.id} item={item} />
+              <MenuItemCard
+                key={item.id}
+                item={item}
+                action={
+                  <AddToCartButton
+                    menuItemId={item.id}
+                    name={item.name}
+                    price={item.price}
+                  />
+                }
+              />
             ))}
           </div>
         </section>
