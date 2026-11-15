@@ -581,6 +581,177 @@
         "summary": "Текущий пользователь",
         "tags": ["auth"]
       }
+    },
+    "/api/orders": {
+      "post": {
+        "operationId": "OrdersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка в корзине или времени"
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "409": {
+            "description": "Позиции нет в меню или в наличии"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Предзаказ клиента; оплата при получении",
+        "tags": ["orders"]
+      }
+    },
+    "/api/orders/my": {
+      "get": {
+        "operationId": "OrdersController_findMine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Мои заказы, последние 20",
+        "tags": ["orders"]
+      }
+    },
+    "/api/orders/queue": {
+      "get": {
+        "operationId": "OrdersController_findQueue",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StaffOrderDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Очередь: активные заказы, старые сверху",
+        "tags": ["orders"]
+      }
+    },
+    "/api/orders/{id}/status": {
+      "patch": {
+        "operationId": "OrdersController_changeStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrderStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffOrderDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Заказ не найден"
+          },
+          "409": {
+            "description": "Недопустимый переход или заказ уже изменён"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Сменить статус по допустимому переходу",
+        "tags": ["orders"]
+      }
     }
   },
   "info": {
@@ -911,6 +1082,202 @@
           }
         },
         "required": ["name", "email", "password"]
+      },
+      "OrderLineDto": {
+        "type": "object",
+        "properties": {
+          "menuItemId": {
+            "type": "number",
+            "example": 3
+          },
+          "quantity": {
+            "type": "number",
+            "example": 2,
+            "minimum": 1,
+            "maximum": 20
+          }
+        },
+        "required": ["menuItemId", "quantity"]
+      },
+      "CreateOrderDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderLineDto"
+            }
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "example": "Без сахара"
+          },
+          "pickupAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Когда заберёте; не передано — как можно скорее"
+          }
+        },
+        "required": ["items"]
+      },
+      "OrderStatus": {
+        "type": "string",
+        "enum": [
+          "new",
+          "accepted",
+          "preparing",
+          "ready",
+          "completed",
+          "cancelled"
+        ]
+      },
+      "OrderItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "menuItemId": {
+            "type": "number",
+            "example": 3
+          },
+          "name": {
+            "type": "string",
+            "example": "Капучино",
+            "description": "Название на момент заказа"
+          },
+          "price": {
+            "type": "number",
+            "example": 1500,
+            "description": "Цена за штуку на момент заказа"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 2
+          }
+        },
+        "required": ["id", "menuItemId", "name", "price", "quantity"]
+      },
+      "OrderDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 12
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrderStatus"
+              }
+            ]
+          },
+          "total": {
+            "type": "number",
+            "example": 3000,
+            "description": "Сумма в целых тенге"
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true
+          },
+          "pickupAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "null — как можно скорее"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "total",
+          "comment",
+          "pickupAt",
+          "createdAt",
+          "items"
+        ]
+      },
+      "StaffOrderDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 12
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrderStatus"
+              }
+            ]
+          },
+          "total": {
+            "type": "number",
+            "example": 3000,
+            "description": "Сумма в целых тенге"
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true
+          },
+          "pickupAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "null — как можно скорее"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemDto"
+            }
+          },
+          "customerName": {
+            "type": "string",
+            "example": "Анна"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "total",
+          "comment",
+          "pickupAt",
+          "createdAt",
+          "items",
+          "customerName"
+        ]
+      },
+      "UpdateOrderStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrderStatus"
+              }
+            ]
+          }
+        },
+        "required": ["status"]
       }
     }
   }

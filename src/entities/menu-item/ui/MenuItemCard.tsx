@@ -1,9 +1,19 @@
+import type { ReactNode } from "react";
+
+import { formatPrice } from "@/shared/lib/format-price";
 import { cn } from "@/shared/lib/utils";
 
-import { formatPrice } from "../lib/format-price";
 import type { MenuItem } from "../model/types";
 
-export function MenuItemCard({ item }: { item: MenuItem }) {
+// action — слот под кнопку из слоя выше (например, «В корзину»):
+// сущность меню не знает о корзине.
+export function MenuItemCard({
+  item,
+  action,
+}: {
+  item: MenuItem;
+  action?: ReactNode;
+}) {
   return (
     <article
       className={cn(
@@ -20,9 +30,11 @@ export function MenuItemCard({ item }: { item: MenuItem }) {
       {item.description && (
         <p className="text-sm text-muted-foreground">{item.description}</p>
       )}
-      <div className="mt-auto flex items-center justify-between gap-2 pt-2 text-sm">
+      <div className="mt-auto flex min-h-11 items-center justify-between gap-2 pt-2 text-sm">
         <span className="text-muted-foreground">{item.portion}</span>
-        {!item.isAvailable && (
+        {item.isAvailable ? (
+          action
+        ) : (
           <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
             Нет в наличии
           </span>

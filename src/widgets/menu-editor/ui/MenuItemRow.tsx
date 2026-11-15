@@ -1,6 +1,7 @@
 import { Pencil, Trash2 } from "lucide-react";
 
-import { formatPrice, type ManagedMenuItem } from "@/entities/menu-item";
+import type { ManagedMenuItem } from "@/entities/menu-item";
+import { formatPrice } from "@/shared/lib/format-price";
 import { StopListSwitch } from "@/features/menu-admin/stop-list";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";

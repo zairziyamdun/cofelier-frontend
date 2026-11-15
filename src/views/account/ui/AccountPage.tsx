@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { isStaff, roleLabels } from "@/entities/user";
 import { LogoutButton } from "@/features/auth/logout";
 import { requireUser } from "@/shared/session";
+import { MyOrders } from "@/widgets/my-orders";
 
 export function AccountPage() {
   return (
@@ -39,14 +40,14 @@ async function AccountContent() {
         )}
       </section>
 
-      <section aria-labelledby="orders-title">
-        <h2 id="orders-title" className="font-heading text-2xl">
-          Мои заказы
-        </h2>
-        <p className="mt-2 rounded-xl border border-dashed border-border p-6 text-muted-foreground">
-          История предзаказов появится, когда заработает оформление заказа.
-        </p>
-      </section>
+      {!isStaff(user.role) && (
+        <section aria-labelledby="orders-title" className="flex flex-col gap-4">
+          <h2 id="orders-title" className="font-heading text-2xl">
+            Мои заказы
+          </h2>
+          <MyOrders />
+        </section>
+      )}
 
       <LogoutButton className="self-start" />
     </div>
