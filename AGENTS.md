@@ -48,6 +48,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 | [docs/OVERVIEW.md](docs/OVERVIEW.md) | Продукт, роли, страницы, этапы (общий с бэкендом) |
 | [docs/Tech-spec.md](docs/Tech-spec.md) | Стек и версии из `package.json` |
 | [docs/PR-POLICY.md](docs/PR-POLICY.md) | Правила проверки PR, их строгость и ID |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Деплой на Vercel: переменные, прокси /api, сокет с токеном |
 
 ## Код
 

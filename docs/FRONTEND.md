@@ -154,9 +154,11 @@ src/entities/menu-item/
 - **Клиент запросов** (есть: `shared/api/query-client.ts`): на сервере —
   новый `QueryClient` на каждый запрос, в браузере — один. `staleTime` 60 с.
 - **HTTP** (есть): `http` из `shared/api/http.ts` — `openapi-fetch`,
-  типизированный схемой: `http.GET("/api/menu")`. Базовый адрес —
-  `API_URL` из `shared/config` (`NEXT_PUBLIC_API_URL`, без `/api`),
-  `credentials: "include"` для cookie. `unwrap(result)` отдаёт данные или
+  типизированный схемой: `http.GET("/api/menu")`. Базовый адрес — `API_URL`
+  из `shared/config`: **в браузере пустой** (запрос идёт на сам сайт,
+  `/api/*` проксирует `rewrites` в `next.config.ts` на `BACKEND_URL`),
+  **на сервере** — `BACKEND_URL`. Так cookie входа принадлежит домену сайта,
+  даже когда API на другом (Vercel + Railway, `docs/DEPLOY.md`). `unwrap(result)` отдаёт данные или
   бросает `ApiError` с текстом бэкенда. Голого `fetch` нет.
 - **Контракт** (есть): схема бэкенда лежит в `openapi/openapi.json`
   (коммитится). `pnpm sync:api` берёт свежую из `../cofelier-backend`
@@ -188,8 +190,11 @@ src/entities/menu-item/
   события за разрыв могли потеряться. Поэтому у запросов заказов
   `staleTime: Infinity` — их не опрашиваем.
 - **Сокет один на вкладку**: `acquireOrdersSocket` / `releaseOrdersSocket` —
-  счётчик держателей, последний закрывает. Авторизация — та же httpOnly-cookie
-  (`withCredentials`); без входа сервер сразу отключает.
+  счётчик держателей, последний закрывает. Cookie для авторизации сокета
+  — нет: сокет идёт прямо в API (`NEXT_PUBLIC_SOCKET_URL`, Vercel WebSocket не
+  проксирует), а перед каждым (пере)подключением берёт через прокси сайта
+  токен на минуту `GET /api/auth/socket-token` и передаёт его в
+  `auth.token`; без входа сервер сразу отключает.
 - **Корзина** (`features/cart`) — в `localStorage` через
   `useSyncExternalStore`: на сервере и при гидратации снимок `null` («ещё не
   загружена» — скелетон или неактивная кнопка), вкладки синхронизируются

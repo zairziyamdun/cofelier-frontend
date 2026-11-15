@@ -655,6 +655,34 @@
         "tags": ["auth"]
       }
     },
+    "/api/auth/socket-token": {
+      "get": {
+        "operationId": "AuthController_socketToken",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocketTokenDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Токен на минуту для подключения к WebSocket /orders",
+        "tags": ["auth"]
+      }
+    },
     "/api/auth/me": {
       "get": {
         "operationId": "AuthController_me",
@@ -1260,6 +1288,16 @@
           }
         },
         "required": ["name", "email", "password"]
+      },
+      "SocketTokenDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT на 60 секунд для handshake.auth.token"
+          }
+        },
+        "required": ["token"]
       },
       "OrderLineDto": {
         "type": "object",
