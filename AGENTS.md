@@ -28,7 +28,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Данные сервера** — только через TanStack Query и хуки слайса; типы — только
   сгенерированные из Swagger бэкенда, руками не писать.
 - **Права** решает бэкенд; на фронте скрытие кнопок — удобство, не защита.
-- **После правок:** `pnpm lint` и `pnpm typecheck`; перед PR — ещё `pnpm build`.
+- **После правок:** `pnpm lint`, `pnpm lint:fsd`, `pnpm format:check`,
+  `pnpm typecheck`; перед PR — ещё `pnpm build`.
 - Код — источник истины: если док разошёлся с кодом, док правится в том же
   коммите.
 - Объём задачи не расширять молча; неоднозначность — спросить.
@@ -82,8 +83,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## CI и PR
 
-- GitHub Actions на каждый PR в `main`: lint, typecheck, build (этап 1 —
-  настроить). Слияние — только после зелёного CI.
+- GitHub Actions (`.github/workflows/ci.yml`) на каждый PR в `main`: lint,
+  lint:fsd, format:check, typecheck, build. Слияние — только после зелёного CI.
 - Перед PR — скилл `/pre-pr-review`: diff от merge-base, ревью по
   [docs/PR-POLICY.md](docs/PR-POLICY.md), проверки, отчёт `READY` /
   `READY WITH WARNINGS` / `BLOCKED` / `INCOMPLETE`. С `BLOCKED` PR не создаём.
@@ -109,9 +110,11 @@ pnpm dev           # next dev, http://localhost:3000
 pnpm build         # прод-сборка
 pnpm start         # запуск сборки
 pnpm lint          # eslint
-pnpm typecheck     # tsc --noEmit
+pnpm lint:fsd      # steiger ./src — правила FSD
+pnpm typecheck     # next typegen && tsc --noEmit (типы LayoutProps/PageProps — из typegen)
+pnpm format        # prettier --write (код; *.md и .claude не трогает)
+pnpm format:check  # как в CI
 pnpm dlx shadcn@latest add <component>   # новый компонент в src/shared/ui
 ```
 
-Планируются: `pnpm gen:api` (openapi-typescript из Swagger бэкенда, этап 2),
-`pnpm lint:fsd` (Steiger, этап 1).
+Планируется: `pnpm gen:api` (openapi-typescript из Swagger бэкенда, этап 2).

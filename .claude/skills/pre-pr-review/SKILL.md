@@ -2,7 +2,7 @@
 name: pre-pr-review
 description: Проверка ветки перед PR в main по PR Policy Cofelier (docs/PR-POLICY.md) — diff от merge-base, ревью архитектуры FSD и логики изменений со сквозной проверкой связанного кода, lint, typecheck, build, отчёт READY / READY WITH WARNINGS / BLOCKED / INCOMPLETE. Используй перед созданием PR и на просьбы «проверь ветку перед PR», «готово ли к PR», «pre-PR review».
 argument-hint: "[base-branch]"
-allowed-tools: Read, Grep, Glob, Write, Bash(git diff *), Bash(git log *), Bash(git show *), Bash(git status *), Bash(git merge-base *), Bash(git rev-parse *), Bash(git grep *), Bash(git fetch *), Bash(pnpm lint*), Bash(pnpm typecheck*), Bash(pnpm build*), Bash(pnpm install*)
+allowed-tools: Read, Grep, Glob, Write, Bash(git diff *), Bash(git log *), Bash(git show *), Bash(git status *), Bash(git merge-base *), Bash(git rev-parse *), Bash(git grep *), Bash(git fetch *), Bash(pnpm lint*), Bash(pnpm format:check*), Bash(pnpm typecheck*), Bash(pnpm build*), Bash(pnpm install*)
 ---
 
 # Pre-PR review
@@ -50,6 +50,8 @@ diff. Правила применяются к **добавленным и из�
 | --- | --- | --- | --- |
 | install | `pnpm install --frozen-lockfile` | всегда первой | да |
 | lint | `pnpm lint` | всегда | да |
+| fsd | `pnpm lint:fsd` | всегда | да |
+| format | `pnpm format:check` | всегда | да |
 | typecheck | `pnpm typecheck` | всегда | да |
 | build | `pnpm build` | всегда (как в CI) | да |
 

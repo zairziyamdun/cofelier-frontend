@@ -27,12 +27,15 @@
 | Технология | Этап | Для чего |
 | --- | --- | --- |
 | openapi-typescript | 2 | типы API из Swagger бэкенда |
-| Steiger | 1 | линтер правил FSD |
-| Prettier | 1 | форматирование |
 | GSAP + ScrollTrigger + @gsap/react | 7 | анимации |
 | Three.js | 7 | 3D |
 | Vitest | 7 | unit-тесты `lib/` |
 
 ## Качество
 
-ESLint 9 (`eslint-config-next`: core-web-vitals + typescript).
+| Технология | Для чего |
+| --- | --- |
+| ESLint 9 (`eslint-config-next` + `eslint-config-prettier`) | линтер |
+| Steiger 0.10 + `@feature-sliced/steiger-plugin` | правила FSD |
+| Prettier 3 + `prettier-plugin-tailwindcss` | форматирование, порядок классов |
+| GitHub Actions | CI на каждый PR |

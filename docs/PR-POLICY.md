@@ -17,7 +17,7 @@
 
   | Кто | Что | Гарантия |
   | --- | --- | --- |
-  | CI (GitHub Actions) | lint, typecheck, build | для всех, блокирует merge |
+  | CI (GitHub Actions) | lint, lint:fsd, format:check, typecheck, build | для всех, блокирует merge |
   | `/pre-pr-review` (Claude Code) | всё из CI локально + ревью архитектуры и логики по этому файлу | у того, кто работает в Claude Code |
   | Ревьюер PR | решение по WARNING, отклонения, UX и макет | человек |
 
@@ -53,7 +53,7 @@ B — BLOCKER, W — WARNING. «Чем» — что ловит нарушени�
 
 | ID | Правило | | Чем |
 | --- | --- | --- | --- |
-| FE-ARCH-1 | Слои `app → views → widgets → features → entities → shared`, импорт только вниз; слайсы слоя друг друга не импортируют; в слайс — только через `index.ts` | B | Steiger (план), ревью |
+| FE-ARCH-1 | Слои `app → views → widgets → features → entities → shared`, импорт только вниз; слайсы слоя друг друга не импортируют; в слайс — только через `index.ts` | B | Steiger, ревью |
 | FE-ARCH-2 | `app/**/page.tsx` и `layout.tsx` тонкие: реэкспорт экрана из `views`, метаданные. Запросов, состояния, разметки нет | B | ревью |
 | FE-ARCH-3 | `"use client"` — только где нужен клиент, как можно ниже по дереву; серверный секрет не попадает в клиентский компонент | B | ревью |
 
