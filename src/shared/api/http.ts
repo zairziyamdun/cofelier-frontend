@@ -31,14 +31,14 @@ export function unwrap<T>({ data, error, response }: ApiResult<T>): T {
   throw new ApiError(readErrorMessage(error), response.status);
 }
 
+// Nest отдаёт message строкой, а ошибки валидации DTO — массивом строк.
 function readErrorMessage(error: unknown): string {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof error.message === "string"
-  ) {
-    return error.message;
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const { message } = error;
+    if (typeof message === "string") return message;
+    if (Array.isArray(message) && typeof message[0] === "string") {
+      return message[0];
+    }
   }
   return "Не удалось связаться с сервером";
 }
