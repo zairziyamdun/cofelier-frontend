@@ -31,6 +31,13 @@ export function unwrap<T>({ data, error, response }: ApiResult<T>): T {
   throw new ApiError(readErrorMessage(error), response.status);
 }
 
+// Для ответов без тела (204 на DELETE): только проверка, что запрос удался.
+export function ensureOk({ error, response }: ApiResult<unknown>): void {
+  if (!response.ok) {
+    throw new ApiError(readErrorMessage(error), response.status);
+  }
+}
+
 // Nest отдаёт message строкой, а ошибки валидации DTO — массивом строк.
 function readErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "message" in error) {

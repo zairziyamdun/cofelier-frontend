@@ -13,17 +13,6 @@ export function AdminOrdersPage() {
   );
 }
 
-export function AdminMenuPage() {
-  return (
-    <AdminPageGate href="/admin/menu">
-      <SectionPlaceholder
-        title="Меню"
-        description="Здесь будет правка позиций и цен и стоп-лист. Раздел появится на следующем этапе."
-      />
-    </AdminPageGate>
-  );
-}
-
 export function AdminStatsPage() {
   return (
     <AdminPageGate href="/admin/stats">

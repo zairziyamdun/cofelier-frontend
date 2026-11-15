@@ -15,16 +15,20 @@ app/                  роутинг Next.js — page.tsx / layout.tsx / error.t
   (site)/             сайт: /, /menu, /about, /contacts,           (есть)
                       /login, /register, /account
                       корзина                                      (план, этап 5)
-  (admin)/admin/      панель: обзор, orders, menu, stats, staff    (есть, разделы — заглушки)
+  (admin)/admin/      панель: обзор, menu (редактор), staff (список) (есть)
+                      orders, stats                                (заглушки, этапы 5, 7)
   icon.svg            favicon: знак без пара                       (есть)
   layout.tsx          корневой layout: шрифты, <Providers>, title  (есть)
 proxy.ts              без cookie на /admin и /account — сразу на вход (есть)
 src/
   app/                слой FSD app: providers/, layouts/ (Site, Admin), styles/ (есть)
   views/              home, menu, about, contacts, auth, account, admin (есть)
-  widgets/            header, footer, hero, menu-list, admin-sidebar (есть)
+  widgets/            header, footer, hero, menu-list, admin-sidebar,
+                      menu-editor                                  (есть)
                       gallery                                      (план, этап 7)
   features/           auth/login, auth/register, auth/logout       (есть)
+                      menu-admin/item-editor, menu-admin/stop-list,
+                      menu-admin/category-editor                   (есть)
                       cart, change-order-status                    (план, этап 5)
   entities/           menu-item, user                              (есть)
                       order                                        (план, этап 5)
@@ -162,6 +166,13 @@ src/entities/menu-item/
   ключей `xxxKeys`, `xxxQueryOptions()` (общие для сервера и браузера) и хук
   (`usePublicMenu` → `useSuspenseQuery`). Литерал `queryKey: ["menu"]` —
   нельзя. Образец — `entities/menu-item/api/menu.queries.ts`.
+- **Мутации меню** — в `features/menu-admin/*/api`; после успеха
+  `useInvalidateMenu()` из `entities/menu-item` (инвалидирует `menuKeys.all`:
+  и панель, и публичное меню). Ответ `204` без тела — `ensureOk(result)`
+  вместо `unwrap`.
+- **Оптимистичное обновление** — только там, где ответ почти всегда успешен и
+  важна мгновенная реакция: переключатель стоп-листа (`use-stop-list.ts`):
+  `onMutate` правит кеш, `onError` откатывает, `onSettled` инвалидирует.
 - **Повтор после ошибки** — `useQueryRetry(retry)`: сначала сброс ошибок
   запросов, потом `retry()` Next; без сброса запрос с ошибкой из кеша снова
   бросит её.
@@ -188,6 +199,15 @@ src/entities/menu-item/
   компоненты в `src/shared/ui`, импорт `@/shared/ui/button`. Используется в
   первую очередь в админке; на публичном сайте — свои виджеты в духе бренда.
 - **Классы** — через `cn()`; строки классов не склеивать шаблонами.
+- **Модальные окна** — `Dialog` из `shared/ui/dialog.tsx` на нативном
+  `<dialog>` (`showModal`): фокус, Escape и затемнение — из браузера.
+  Содержимое монтируется только пока окно открыто — форма каждый раз чистая
+  (`defaultValue`, без синхронизации состояния). Ошибка формы — `FormError`.
+- **Поля** — `Input`, `Textarea`, `Select`, `Field`, `FormError` из
+  `shared/ui/input.tsx`; переключатель — `Switch` (`role="switch"`).
+- **Удаление** — всегда через окно подтверждения с последствиями; если
+  удалить нельзя (категория с позициями) — окно объясняет почему, без кнопки
+  «Удалить».
 - **Иконки** — `lucide-react`.
 - **Картинки** — `next/image` с `alt`; фото со стоков — в `public/` или
   внешним доменом из `next.config.ts`.

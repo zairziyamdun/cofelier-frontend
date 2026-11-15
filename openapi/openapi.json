@@ -36,6 +36,405 @@
         "tags": ["menu"]
       }
     },
+    "/api/menu/manage": {
+      "get": {
+        "operationId": "MenuAdminController_getManagedMenu",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ManagedMenuCategoryDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Меню для панели: все категории и позиции",
+        "tags": ["menu-admin"]
+      }
+    },
+    "/api/menu/items": {
+      "post": {
+        "operationId": "MenuAdminController_createItem",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMenuItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMenuItemDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка в полях"
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Категория не найдена"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Новая позиция",
+        "tags": ["menu-admin"]
+      }
+    },
+    "/api/menu/items/{id}": {
+      "patch": {
+        "operationId": "MenuAdminController_updateItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMenuItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMenuItemDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Позиция или категория не найдена"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Правка позиции: только переданные поля",
+        "tags": ["menu-admin"]
+      },
+      "delete": {
+        "operationId": "MenuAdminController_deleteItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Позиция не найдена"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Удалить позицию",
+        "tags": ["menu-admin"]
+      }
+    },
+    "/api/menu/items/{id}/stop-list": {
+      "patch": {
+        "operationId": "MenuAdminController_setStopList",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetStopListDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMenuItemDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Позиция не найдена"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Поставить в стоп-лист или вернуть в продажу",
+        "tags": ["menu-admin"]
+      }
+    },
+    "/api/menu/categories": {
+      "post": {
+        "operationId": "MenuAdminController_createCategory",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMenuCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMenuCategoryDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Новая категория (в конец меню)",
+        "tags": ["menu-admin"]
+      }
+    },
+    "/api/menu/categories/order": {
+      "put": {
+        "operationId": "MenuAdminController_reorderCategories",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderMenuCategoriesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ManagedMenuCategoryDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не все категории или повторы"
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Новый порядок категорий",
+        "tags": ["menu-admin"]
+      }
+    },
+    "/api/menu/categories/{id}": {
+      "patch": {
+        "operationId": "MenuAdminController_renameCategory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMenuCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMenuCategoryDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Категория не найдена"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Переименовать категорию",
+        "tags": ["menu-admin"]
+      },
+      "delete": {
+        "operationId": "MenuAdminController_deleteCategory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Категория не найдена"
+          },
+          "409": {
+            "description": "В категории есть позиции"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Удалить пустую категорию",
+        "tags": ["menu-admin"]
+      }
+    },
     "/api/users/staff": {
       "get": {
         "operationId": "UsersController_listStaff",
@@ -269,6 +668,186 @@
           }
         },
         "required": ["id", "slug", "name", "items"]
+      },
+      "ManagedMenuItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 3
+          },
+          "name": {
+            "type": "string",
+            "example": "Капучино"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Эспрессо, молоко и шелковистая пенка"
+          },
+          "portion": {
+            "type": "string",
+            "nullable": true,
+            "example": "300 мл"
+          },
+          "price": {
+            "type": "number",
+            "description": "Цена в целых тенге",
+            "example": 1500
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "description": "false — позиция в стоп-листе: видна, но заказать нельзя"
+          },
+          "categoryId": {
+            "type": "number",
+            "example": 1
+          },
+          "inStopList": {
+            "type": "boolean",
+            "description": "true — позиция в стоп-листе"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "portion",
+          "price",
+          "imageUrl",
+          "isAvailable",
+          "categoryId",
+          "inStopList"
+        ]
+      },
+      "ManagedMenuCategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "slug": {
+            "type": "string",
+            "example": "espresso"
+          },
+          "name": {
+            "type": "string",
+            "example": "Эспрессо и классика"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManagedMenuItemDto"
+            }
+          }
+        },
+        "required": ["id", "slug", "name", "items"]
+      },
+      "CreateMenuItemDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "number",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Капучино"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Эспрессо, молоко и шелковистая пенка"
+          },
+          "portion": {
+            "type": "string",
+            "nullable": true,
+            "example": "300 мл"
+          },
+          "price": {
+            "type": "number",
+            "description": "Цена в целых тенге",
+            "example": 1500
+          }
+        },
+        "required": ["categoryId", "name", "price"]
+      },
+      "UpdateMenuItemDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "number",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Капучино"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Эспрессо, молоко и шелковистая пенка"
+          },
+          "portion": {
+            "type": "string",
+            "nullable": true,
+            "example": "300 мл"
+          },
+          "price": {
+            "type": "number",
+            "description": "Цена в целых тенге",
+            "example": 1500
+          }
+        }
+      },
+      "SetStopListDto": {
+        "type": "object",
+        "properties": {
+          "inStopList": {
+            "type": "boolean",
+            "description": "true — позиция в стоп-листе"
+          }
+        },
+        "required": ["inStopList"]
+      },
+      "CreateMenuCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Сезонное"
+          }
+        },
+        "required": ["name"]
+      },
+      "ReorderMenuCategoriesDto": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "description": "id всех категорий в новом порядке",
+            "example": [3, 1, 2],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": ["ids"]
+      },
+      "UpdateMenuCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Сезонное"
+          }
+        },
+        "required": ["name"]
       },
       "Role": {
         "type": "string",
