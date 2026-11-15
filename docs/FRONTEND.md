@@ -12,21 +12,25 @@ Next.js 16 (App Router) + Tailwind 4 + FSD, TanStack Query, shadcn/ui. Что з
 
 ```
 app/                  роутинг Next.js — page.tsx / layout.tsx / error.tsx / route.ts
-  (site)/             публичный сайт: /, /menu, /about, /contacts  (есть)
-                      корзина, кабинет                             (план, этапы 3, 5)
+  (site)/             сайт: /, /menu, /about, /contacts,           (есть)
+                      /login, /register, /account
+                      корзина                                      (план, этап 5)
+  (admin)/admin/      панель: обзор, orders, menu, stats, staff    (есть, разделы — заглушки)
   icon.svg            favicon: знак без пара                       (есть)
-  (admin)/            панель сотрудников                           (план, этап 3)
   layout.tsx          корневой layout: шрифты, <Providers>, title  (есть)
+proxy.ts              без cookie на /admin и /account — сразу на вход (есть)
 src/
-  app/                слой FSD app: providers/, layouts/, styles/  (есть)
-  views/              экраны страниц: home, menu, about, contacts  (есть)
-  widgets/            header, footer, hero, menu-list              (есть)
+  app/                слой FSD app: providers/, layouts/ (Site, Admin), styles/ (есть)
+  views/              home, menu, about, contacts, auth, account, admin (есть)
+  widgets/            header, footer, hero, menu-list, admin-sidebar (есть)
                       gallery                                      (план, этап 7)
-  features/           cart, auth-login, change-order-status        (план)
-  entities/           menu-item                                    (есть)
-                      order, user                                  (план)
-  shared/             ui (shadcn, logo, error-state), lib, api,    (есть)
-                      config (env, site), brand (логотип PNG)
+  features/           auth/login, auth/register, auth/logout       (есть)
+                      cart, change-order-status                    (план, этап 5)
+  entities/           menu-item, user                              (есть)
+                      order                                        (план, этап 5)
+  shared/             ui, lib, api, brand,                         (есть)
+                      config (env, site, admin-sections),
+                      session (только сервер: текущий пользователь)
 openapi/              openapi.json — копия схемы бэкенда (коммитится)
 docs/                 документация
 ```
@@ -84,10 +88,35 @@ src/entities/menu-item/
   нельзя: клиентский файл потянул бы в бандл серверный экран.
 - Заголовок страницы — `metadata.title` в `page.tsx`; шаблон
   `%s — Cofelier` задан в корневом layout.
-- **Доступ** (план, этап 3): JWT лежит в `httpOnly`-cookie, выданной бэкендом.
-  Next.js проверяет роль на сервере (proxy/middleware или серверный layout
-  `(admin)`) запросом `GET /auth/me` и делает redirect на вход. Окончательное
-  решение — всегда за API: фронт не считает пользователя админом сам.
+- **Доступ** (есть). JWT лежит в `httpOnly`-cookie `access_token`, которую
+  ставит бэкенд; JS страницы её не видит. Браузер шлёт cookie и на API, и на
+  сайт (cookie не зависят от порта; в проде — общий `COOKIE_DOMAIN`), поэтому
+  сервер Next может спросить API от имени пользователя. Три уровня:
+  1. `proxy.ts` — только «есть ли cookie»: нет — redirect на
+     `/login?next=<точный адрес>`. Не авторизация, а быстрый путь.
+  2. Серверные страницы — `requireUser({ from, roles })` из `shared/session`:
+     `GET /auth/me` с cookie запроса; нет входа — на вход, не та роль —
+     клиента на `/`, сотрудника на `/admin`. Читается **только под
+     `<Suspense>`** (cookies() с cacheComponents); `getCurrentUser` обёрнут в
+     `React.cache` — один запрос на рендер.
+  3. API — окончательное решение (401/403), фронт роль не «считает».
+- **Layout не защищает страницы**: в App Router страница рендерится
+  параллельно с layout. Поэтому `AdminLayout` проверяет «сотрудник ли» ради
+  бокового меню, а каждая страница раздела оборачивается в `AdminPageGate`
+  (`views/admin`) с ролями раздела. Новая страница панели без гейта — ошибка.
+- **Разделы панели и роли** — `shared/config/admin-sections.ts`: из него
+  строятся и боковое меню (`sectionsForRole`), и проверка страницы
+  (`sectionRoles`). Новый раздел — строка там и страница с `AdminPageGate`.
+- **`shared/session` — только серверный код** (`server-only`): в клиентском
+  компоненте импорт упадёт на сборке. В браузере пользователь — из
+  `useCurrentUser()` (`entities/user`): 401 там не ошибка, а `null`.
+- После входа, регистрации и выхода: `setQueryData(userKeys.current())`,
+  затем `router.replace(...)` и `router.refresh()` — чтобы серверные
+  компоненты перечитали сессию.
+- `?next=` после входа — только через `safeRedirectPath` (`shared/lib`):
+  относительный путь, без `//` и чужих доменов.
+- Гость в консоли видит `401` на `/api/auth/me` — так браузер помечает любой
+  неуспешный ответ; это ожидаемо.
 - Кнопка действия, недоступного роли, не показывается — но запрос без прав всё
   равно должен получить 403 от бэкенда.
 

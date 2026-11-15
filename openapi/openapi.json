@@ -35,6 +35,153 @@
         "summary": "Публичное меню: категории с позициями",
         "tags": ["menu"]
       }
+    },
+    "/api/users/staff": {
+      "get": {
+        "operationId": "UsersController_listStaff",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Сотрудники (только админ)",
+        "tags": ["users"]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неверная почта или пароль"
+          },
+          "429": {
+            "description": "Слишком много попыток"
+          }
+        },
+        "summary": "Вход: ставит httpOnly-cookie с токеном",
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Почта уже зарегистрирована"
+          },
+          "429": {
+            "description": "Слишком много попыток"
+          }
+        },
+        "summary": "Регистрация клиента и сразу вход",
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Выход: удаляет cookie",
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Текущий пользователь",
+        "tags": ["auth"]
+      }
     }
   },
   "info": {
@@ -46,6 +193,13 @@
   "tags": [],
   "servers": [],
   "components": {
+    "securitySchemes": {
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "access_token"
+      }
+    },
     "schemas": {
       "MenuItemDto": {
         "type": "object",
@@ -115,6 +269,69 @@
           }
         },
         "required": ["id", "slug", "name", "items"]
+      },
+      "Role": {
+        "type": "string",
+        "enum": ["client", "barista", "manager", "admin"]
+      },
+      "UserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "email": {
+            "type": "string",
+            "example": "anna@example.com"
+          },
+          "name": {
+            "type": "string",
+            "example": "Анна"
+          },
+          "role": {
+            "example": "client",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Role"
+              }
+            ]
+          }
+        },
+        "required": ["id", "email", "name", "role"]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "anna@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "correct-horse-battery"
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Анна"
+          },
+          "email": {
+            "type": "string",
+            "example": "anna@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "correct-horse-battery",
+            "minLength": 8
+          }
+        },
+        "required": ["name", "email", "password"]
       }
     }
   }

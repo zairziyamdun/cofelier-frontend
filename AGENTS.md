@@ -6,7 +6,7 @@ TanStack Query, pnpm. Комментарии и доки — на русском
 
 Этот файл — главный файл правил для агентов. `CLAUDE.md` только подключает его.
 
-**Текущий этап:** 2 — меню (см. [docs/OVERVIEW.md](docs/OVERVIEW.md), «Этапы»).
+**Текущий этап:** 3 — вход и роли (см. [docs/OVERVIEW.md](docs/OVERVIEW.md), «Этапы»).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
@@ -31,6 +31,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   `<Suspense>` после `await connection()` (FRONTEND.md §2, образец —
   `views/menu`).
 - **Права** решает бэкенд; на фронте скрытие кнопок — удобство, не защита.
+- **Сессия на сервере** — `requireUser` / `getCurrentUser` из `shared/session`
+  (только серверный код, только под `<Suspense>`); каждая страница панели —
+  в `AdminPageGate`, layout страницы не защищает (FRONTEND.md §2).
 - **После правок:** `pnpm lint`, `pnpm lint:fsd`, `pnpm format:check`,
   `pnpm typecheck`; перед PR — ещё `pnpm build`.
 - Код — источник истины: если док разошёлся с кодом, док правится в том же
