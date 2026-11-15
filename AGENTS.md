@@ -62,6 +62,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   писать. Cookie с JWT — `httpOnly`, токен в JS не читается и не хранится.
 - **Ключи кеша** (§3): из фабрики ключей сущности, без литералов; после
   мутации — инвалидация.
+- **Контент** (§4, «Контент сайта»): контакты и часы — `shared/config/site.ts`,
+  тексты страниц — `views/<page>/config/content.ts`; в разметку не вписывать.
 - **Цвет и шрифт — только токены** (§4): `bg-background`, `text-primary`,
   `font-heading`; hex в классах не писать, нет токена — завести в
   `src/app/styles/globals.css`.

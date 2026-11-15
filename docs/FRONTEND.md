@@ -12,21 +12,22 @@ Next.js 16 (App Router) + Tailwind 4 + FSD, TanStack Query, shadcn/ui. Что з
 
 ```
 app/                  роутинг Next.js — page.tsx / layout.tsx / error.tsx / route.ts
-  (site)/             публичный сайт: /, /menu                     (есть)
-                      о нас, контакты, корзина, кабинет            (план)
+  (site)/             публичный сайт: /, /menu, /about, /contacts  (есть)
+                      корзина, кабинет                             (план, этапы 3, 5)
+  icon.svg            favicon: знак без пара                       (есть)
   (admin)/            панель сотрудников                           (план, этап 3)
   layout.tsx          корневой layout: шрифты, <Providers>, title  (есть)
 src/
   app/                слой FSD app: providers/, layouts/, styles/  (есть)
-  views/              экраны страниц: home, menu                   (есть)
-  widgets/            header, footer, menu-list                    (есть)
-                      hero, gallery                                (план)
+  views/              экраны страниц: home, menu, about, contacts  (есть)
+  widgets/            header, footer, hero, menu-list              (есть)
+                      gallery                                      (план, этап 7)
   features/           cart, auth-login, change-order-status        (план)
   entities/           menu-item                                    (есть)
                       order, user                                  (план)
-  shared/             ui (shadcn, logo, error-state), lib, config, api (есть)
+  shared/             ui (shadcn, logo, error-state), lib, api,    (есть)
+                      config (env, site), brand (логотип PNG)
 openapi/              openapi.json — копия схемы бэкенда (коммитится)
-public/               статика: логотип, favicon.svg                (план)
 docs/                 документация
 ```
 
@@ -161,10 +162,31 @@ src/entities/menu-item/
 - **Иконки** — `lucide-react`.
 - **Картинки** — `next/image` с `alt`; фото со стоков — в `public/` или
   внешним доменом из `next.config.ts`.
-- **Логотип** (есть, временный): `Logo` / `LogoMark` в `shared/ui/logo.tsx` —
-  набросок знака в SVG; заменить на файлы готового логотипа.
+- **Логотип** (есть): полный растровый — `brandLogo` из `shared/brand`
+  (`cofelier-logo.png`, hero на главной); знак — `LogoMark` в
+  `shared/ui/logo.tsx`, SVG по мотивам логотипа (`steam={false}` — без пара);
+  favicon — `app/icon.svg`. Лучше заменить знак на векторный исходник
+  логотипа, когда он будет.
 - **Цена** — `formatPrice` из `entities/menu-item`: «1 500 ₸»
   (`currencyDisplay: "narrowSymbol"`, иначе ru-RU пишет «KZT»).
+
+### Контент сайта
+
+Тексты и данные кофейни не размазаны по разметке:
+
+| Что | Где |
+| --- | --- |
+| Название, слоган, адрес, телефон, почта, Instagram, часы, координаты карты | `src/shared/config/site.ts` (`site`) |
+| Пункты меню шапки и подвала | `src/shared/config/site.ts` (`navigation`) |
+| Тексты главной | `src/views/home/config/content.ts` |
+| Тексты «О нас» | `src/views/about/config/content.ts` |
+| Меню и цены | бэкенд, `prisma/seed.ts` |
+
+Сейчас там заглушки: правка контента — только в этих файлах.
+
+- **Карта** — виджет Яндекс.Карт в `<iframe>` по `site.map` (без API-ключа),
+  ссылки — `views/contacts/lib/map-urls.ts`. Порядок координат —
+  `lon, lat`.
 
 ## 5. Анимации (этап 7)
 
