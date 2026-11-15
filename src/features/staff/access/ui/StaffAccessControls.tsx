@@ -25,26 +25,24 @@ export function StaffAccessControls({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-4">
-        <label className="flex items-center gap-2">
-          <span className="sr-only">Роль: {staff.name}</span>
-          <Select
-            value={staff.role}
-            disabled={locked}
-            className="w-40"
-            onChange={(event) =>
-              updateStaff.mutate({
-                id: staff.id,
-                body: { role: event.target.value as StaffRole },
-              })
-            }
-          >
-            {staffRoles.map((role) => (
-              <option key={role} value={role}>
-                {roleLabels[role]}
-              </option>
-            ))}
-          </Select>
-        </label>
+        <Select
+          aria-label={`Роль: ${staff.name}`}
+          value={staff.role}
+          disabled={locked}
+          className="w-40"
+          onChange={(event) =>
+            updateStaff.mutate({
+              id: staff.id,
+              body: { role: event.target.value as StaffRole },
+            })
+          }
+        >
+          {staffRoles.map((role) => (
+            <option key={role} value={role}>
+              {roleLabels[role]}
+            </option>
+          ))}
+        </Select>
         <div className="flex items-center gap-1">
           <Switch
             checked={staff.isActive}
