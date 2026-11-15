@@ -1,6 +1,9 @@
 import { STAFF_ROLES } from "@/shared/config";
 
-import type { Role } from "../model/types";
+import type { Role, StaffRole } from "../model/types";
+
+// Роли, которые админ может выдать сотруднику (в порядке «младше → старше»).
+export const staffRoles: StaffRole[] = ["barista", "manager", "admin"];
 
 export const roleLabels: Record<Role, string> = {
   client: "Клиент",

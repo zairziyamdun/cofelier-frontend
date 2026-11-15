@@ -447,7 +447,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/UserDto"
+                    "$ref": "#/components/schemas/StaffDto"
                   }
                 }
               }
@@ -465,7 +465,108 @@
             "cookie": []
           }
         ],
-        "summary": "Сотрудники (только админ)",
+        "summary": "Сотрудники: активные сверху",
+        "tags": ["users"]
+      },
+      "post": {
+        "operationId": "UsersController_createStaff",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStaffDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка в полях"
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "409": {
+            "description": "Почта уже зарегистрирована"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Новый сотрудник с временным паролем",
+        "tags": ["users"]
+      }
+    },
+    "/api/users/staff/{id}": {
+      "patch": {
+        "operationId": "UsersController_updateStaff",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStaffDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Сотрудник не найден"
+          },
+          "409": {
+            "description": "Нельзя изменить себя"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Сменить роль или отключить/включить сотрудника",
         "tags": ["users"]
       }
     },
@@ -1024,6 +1125,97 @@
         "type": "string",
         "enum": ["client", "barista", "manager", "admin"]
       },
+      "StaffDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "email": {
+            "type": "string",
+            "example": "anna@example.com"
+          },
+          "name": {
+            "type": "string",
+            "example": "Анна"
+          },
+          "role": {
+            "example": "client",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Role"
+              }
+            ]
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "false — отключён, войти не может"
+          }
+        },
+        "required": ["id", "email", "name", "role", "isActive"]
+      },
+      "StaffRole": {
+        "type": "string",
+        "enum": ["barista", "manager", "admin"]
+      },
+      "CreateStaffDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Дана"
+          },
+          "email": {
+            "type": "string",
+            "example": "dana@cofelier.kz"
+          },
+          "password": {
+            "type": "string",
+            "example": "temporary-pass-2026",
+            "minLength": 8,
+            "description": "Временный пароль — админ передаёт его сотруднику сам"
+          },
+          "role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StaffRole"
+              }
+            ]
+          }
+        },
+        "required": ["name", "email", "password", "role"]
+      },
+      "UpdateStaffDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StaffRole"
+              }
+            ]
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "false — сотрудник не может войти"
+          }
+        }
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "anna@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "correct-horse-battery"
+          }
+        },
+        "required": ["email", "password"]
+      },
       "UserDto": {
         "type": "object",
         "properties": {
@@ -1049,20 +1241,6 @@
           }
         },
         "required": ["id", "email", "name", "role"]
-      },
-      "LoginDto": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "example": "anna@example.com"
-          },
-          "password": {
-            "type": "string",
-            "example": "correct-horse-battery"
-          }
-        },
-        "required": ["email", "password"]
       },
       "RegisterDto": {
         "type": "object",

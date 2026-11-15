@@ -15,7 +15,7 @@ app/                  роутинг Next.js — page.tsx / layout.tsx / error.t
   (site)/             сайт: /, /menu, /about, /contacts,           (есть)
                       /login, /register, /account (+ мои заказы), /cart (есть)
   (admin)/admin/      панель: обзор, orders (живая очередь),       (есть)
-                      menu (редактор), staff (список)
+                      menu (редактор), staff (сотрудники и роли)
                       stats                                        (заглушка, этап 7)
   icon.svg            favicon: знак без пара                       (есть)
   layout.tsx          корневой layout: шрифты, <Providers>, title  (есть)
@@ -24,12 +24,14 @@ src/
   app/                слой FSD app: providers/, layouts/ (Site, Admin), styles/ (есть)
   views/              home, menu, about, contacts, auth, account, cart, admin (есть)
   widgets/            header, footer, hero, menu-list, admin-sidebar,
-                      menu-editor, cart-panel, my-orders, order-queue (есть)
+                      menu-editor, cart-panel, my-orders, order-queue,
+                      staff-manager                                (есть)
                       gallery                                      (план, этап 7)
   features/           auth/login, auth/register, auth/logout       (есть)
                       menu-admin/item-editor, menu-admin/stop-list,
                       menu-admin/category-editor,
-                      cart, checkout, order-status                 (есть)
+                      cart, checkout, order-status,
+                      staff/create, staff/access                   (есть)
   entities/           menu-item, user, order                       (есть)
   shared/             ui, lib (format-price, format-time), api, brand, (есть)
                       config (env, site, admin-sections),
@@ -224,6 +226,11 @@ src/entities/menu-item/
   (`defaultValue`, без синхронизации состояния). Ошибка формы — `FormError`.
 - **Поля** — `Input`, `Textarea`, `Select`, `Field`, `FormError` из
   `shared/ui/input.tsx`; переключатель — `Switch` (`role="switch"`).
+- **Сотрудники** — `widgets/staff-manager`: создание (`features/staff/create`,
+  временный пароль генерируется в браузере, `crypto.getRandomValues`, и
+  показывается один раз после создания) и роль/доступ
+  (`features/staff/access`, сохраняется сразу; своя строка заблокирована —
+  так же решает API).
 - **Удаление** — всегда через окно подтверждения с последствиями; если
   удалить нельзя (категория с позициями) — окно объясняет почему, без кнопки
   «Удалить».
