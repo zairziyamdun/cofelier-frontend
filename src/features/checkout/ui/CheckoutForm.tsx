@@ -20,13 +20,37 @@ type CheckoutFormProps = {
 };
 
 export function CheckoutForm({ lines, total, onPlaced }: CheckoutFormProps) {
-  const { data: user, isPending } = useCurrentUser();
+  const {
+    data: user,
+    isPending,
+    unavailable,
+    isFetching,
+    refetch,
+  } = useCurrentUser();
   const placeOrder = usePlaceOrder();
   // Слоты считаются один раз при открытии формы: время не «прыгает» под рукой.
   const [slots] = useState(() => pickupSlots(new Date()));
 
   if (isPending)
     return <div className="h-64 animate-pulse rounded-xl bg-muted" />;
+
+  // Сбой сервера — не повод звать вошедшего человека входить заново.
+  if (unavailable) {
+    return (
+      <div className="flex flex-col items-start gap-4 rounded-xl border border-border bg-card p-6">
+        <p>Не удалось проверить вход: сервер не отвечает.</p>
+        <Button
+          size="lg"
+          variant="outline"
+          className="min-h-11 px-6"
+          disabled={isFetching}
+          onClick={() => void refetch()}
+        >
+          Повторить
+        </Button>
+      </div>
+    );
+  }
 
   if (!user) {
     return (

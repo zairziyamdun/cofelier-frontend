@@ -24,6 +24,15 @@ export function currentUserQueryOptions() {
 }
 
 // Для шапки и кнопок в браузере; серверные страницы берут пользователя из shared/session.
+// unavailable — сервер не ответил, и вход неизвестен: это не «гость».
+// Перезапрос после ошибки снова переводит запрос в pending, поэтому
+// прошлую ошибку узнаём по errorUpdatedAt, чтобы кнопка не мигала.
 export function useCurrentUser() {
-  return useQuery(currentUserQueryOptions());
+  const query = useQuery(currentUserQueryOptions());
+  const unavailable = query.data === undefined && query.errorUpdatedAt > 0;
+  return {
+    ...query,
+    unavailable,
+    isPending: query.isPending && !unavailable,
+  };
 }
