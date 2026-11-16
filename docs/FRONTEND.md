@@ -23,7 +23,7 @@ proxy.ts              без cookie на /admin и /account — сразу на 
 src/
   app/                слой FSD app: providers/, layouts/ (Site, Admin), styles/ (есть)
   views/              home, menu, about, contacts, auth, account, cart, admin (есть)
-  widgets/            header, footer, hero, menu-list, admin-sidebar,
+  widgets/            header, footer, menu-list, admin-sidebar,
                       menu-editor, cart-panel, my-orders, order-queue,
                       staff-manager                                (есть)
                       gallery                                      (план, этап 7)
@@ -249,7 +249,7 @@ src/entities/menu-item/
   без пара. Готовые файлы: `cofelier-mark-light.svg` (для светлого фона) и
   `cofelier-mark-dark.svg` (для тёмного) в `shared/brand`. Favicon
   `app/icon.svg` — знак без пара на угольном. Полный растровый логотип со
-  словом — `brandLogo` (`cofelier-logo.png`, hero на главной).
+  словом — `brandLogo` (`cofelier-logo.png`).
 - **Цена** — `formatPrice` из `shared/lib/format-price`: «1 500 ₸»
   (`currencyDisplay: "narrowSymbol"`, иначе ru-RU пишет «KZT»).
 
@@ -278,7 +278,24 @@ src/entities/menu-item/
 - `gsap.registerPlugin(ScrollTrigger)` — один раз в `shared/lib/gsap.ts`.
 - Three.js — отдельным клиентским компонентом через `next/dynamic` с
   `ssr: false`, чтобы не утяжелять первый экран.
-- Учитывать `prefers-reduced-motion`.
+- Учитывать `prefers-reduced-motion`: константа `MOTION_OK` из
+  `shared/lib/gsap.ts`, анимации — внутри `gsap.matchMedia()`.
+
+**Главная** (`views/home`) — образец:
+
+- Секции — серверные компоненты, размеченные `data-*` (`data-reveal`,
+  `data-split`, `data-magnetic`, `data-count`…); поведение — в
+  `lib/home-motion.ts`, подключает его клиентская оболочка `HomeMotion`
+  (`<main>`). Без JS и при reduced motion весь текст виден сразу.
+- Текст hero до старта GSAP скрыт классом `hero-hidden` (только при
+  `scripting: enabled`), через 3 с CSS показывает его сам.
+- 3D — `lib/bean-field.ts` (Three.js без React: главное зерно + фон из одного
+  `InstancedMesh`), обёртка `ui/BeanScene.tsx` через `next/dynamic`
+  (`ssr: false`). Рисует только пока hero на экране и вкладка активна; при
+  `saveData`, без WebGL или при ошибке загрузки hero остаётся без 3D.
+- Модели — `public/models/*.glb`, сжатые `gltf-transform optimize`
+  (meshopt, WebP 1K, упрощение сетки): цель — до ~1 МБ и ~10 тыс.
+  треугольников на модель.
 
 ---
 
