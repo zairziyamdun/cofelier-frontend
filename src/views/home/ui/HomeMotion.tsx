@@ -6,6 +6,7 @@ import { MOTION_OK, useGSAP } from "@/shared/lib/gsap";
 
 import { BEAN_MODEL_URL, MODELS, type ModelKey } from "../config/scene";
 import { setupHomeMotion } from "../lib/home-motion";
+import { whenIdle } from "../lib/when-idle";
 
 type NetworkInformation = { saveData?: boolean };
 
@@ -22,7 +23,7 @@ export function HomeMotion({ children }: { children: ReactNode }) {
     { scope: ref },
   );
 
-  // Общая 3D-сцена: Three.js грузится отдельным чанком после первого кадра.
+  // Общая 3D-сцена: Three.js грузится отдельным чанком, когда поток свободен.
   useEffect(() => {
     const root = ref.current;
     const stage = stageRef.current;
@@ -36,37 +37,40 @@ export function HomeMotion({ children }: { children: ReactNode }) {
 
     let cancelled = false;
     let cleanup: (() => void) | undefined;
-    import("../lib/story-scene")
-      .then(({ StoryScene }) => {
-        if (cancelled) return;
-        // Холст создаём на каждый запуск эффекта: после dispose его
-        // WebGL-контекст потерян, и повторный монтаж на нём не рисует.
-        const canvas = document.createElement("canvas");
-        canvas.className = "block size-full";
-        stage.append(canvas);
-        try {
-          const scene = new StoryScene(
-            canvas,
-            window.matchMedia(MOTION_OK).matches,
-          );
-          for (const slot of slots) {
-            const model = MODELS[slot.dataset.modelSlot as ModelKey];
-            if (model) scene.add(slot, model);
-          }
-          scene.loadBeans(BEAN_MODEL_URL);
-          cleanup = () => {
-            scene.dispose();
+    const start = () =>
+      import("../lib/story-scene")
+        .then(({ StoryScene }) => {
+          if (cancelled) return;
+          // Холст создаём на каждый запуск эффекта: после dispose его
+          // WebGL-контекст потерян, и повторный монтаж на нём не рисует.
+          const canvas = document.createElement("canvas");
+          canvas.className = "block size-full";
+          stage.append(canvas);
+          try {
+            const scene = new StoryScene(
+              canvas,
+              window.matchMedia(MOTION_OK).matches,
+            );
+            for (const slot of slots) {
+              const model = MODELS[slot.dataset.modelSlot as ModelKey];
+              if (model) scene.add(slot, model);
+            }
+            scene.loadBeans(BEAN_MODEL_URL);
+            cleanup = () => {
+              scene.dispose();
+              canvas.remove();
+            };
+          } catch {
+            // Нет WebGL — страница остаётся без моделей.
             canvas.remove();
-          };
-        } catch {
-          // Нет WebGL — страница остаётся без моделей.
-          canvas.remove();
-        }
-      })
-      .catch(() => undefined);
+          }
+        })
+        .catch(() => undefined);
+    const cancelIdle = whenIdle(start, 3000);
 
     return () => {
       cancelled = true;
+      cancelIdle();
       cleanup?.();
     };
   }, []);
