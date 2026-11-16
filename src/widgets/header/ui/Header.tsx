@@ -10,9 +10,11 @@ import { UserButton, UserButtonPlaceholder } from "./UserButton";
 
 // На телефоне — две строки: логотип с корзиной и профилем, под ними разделы.
 // С sm — всё в одну строку.
+// Без backdrop-blur: при почти непрозрачном фоне размытие не видно, а под
+// анимациями главной оно пересчитывается каждый кадр и съедает FPS.
 export function Header() {
   return (
-    <header className="sticky top-0 z-10 border-b border-border bg-background/90 backdrop-blur">
+    <header className="sticky top-0 z-10 border-b border-border bg-background/95">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-2 px-4 py-2 sm:h-16 sm:flex-nowrap sm:py-0">
         <Link
           href="/"

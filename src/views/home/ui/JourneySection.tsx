@@ -48,7 +48,8 @@ export function JourneySection() {
             <span
               aria-hidden="true"
               data-journey-num
-              className="pointer-events-none absolute -top-6 right-0 font-heading text-[clamp(9rem,22vw,18rem)] leading-none text-outline"
+              // Свой слой: параллакс цифры не перерисовывает всю ленту.
+              className="pointer-events-none absolute -top-6 right-0 font-heading text-[clamp(9rem,22vw,18rem)] leading-none text-outline md:will-change-transform"
             >
               {String(index + 1).padStart(2, "0")}
             </span>
@@ -56,7 +57,7 @@ export function JourneySection() {
             <ModelSlot model={step.model} className="min-h-40 flex-1" />
             <div
               data-journey-body
-              className="relative flex shrink-0 flex-col gap-4"
+              className="relative flex shrink-0 flex-col gap-4 md:*:will-change-[transform,opacity]"
             >
               <p className="text-xs tracking-[0.25em] text-cream/50 uppercase">
                 {step.kicker}

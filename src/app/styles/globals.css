@@ -137,6 +137,8 @@
   height: 110vmax;
   margin: -55vmax 0 0 -55vmax;
   translate: 28vw -6vh;
+  /* Свой слой: градиент рисуется один раз, при прокрутке только сдвигается. */
+  will-change: transform;
   border-radius: 9999px;
   background: radial-gradient(
     closest-side,
@@ -154,6 +156,7 @@
   height: 90vmax;
   margin: -45vmax 0 0 -45vmax;
   translate: -38vw 34vh;
+  will-change: transform;
   border-radius: 9999px;
   background: radial-gradient(
     closest-side,
