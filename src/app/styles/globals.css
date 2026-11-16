@@ -127,6 +127,101 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Главная — одна студия: два «софтбокса» на общем фоне двигаются при
+   прокрутке (lib/home-motion), поэтому у секций нет своих фонов и швов. */
+@utility studio-key {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110vmax;
+  height: 110vmax;
+  margin: -55vmax 0 0 -55vmax;
+  translate: 28vw -6vh;
+  border-radius: 9999px;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--copper) 34%, transparent),
+    color-mix(in oklab, var(--copper) 9%, transparent) 50%,
+    transparent
+  );
+}
+
+@utility studio-fill {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90vmax;
+  height: 90vmax;
+  margin: -45vmax 0 0 -45vmax;
+  translate: -38vw 34vh;
+  border-radius: 9999px;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--cream) 7%, transparent),
+    transparent
+  );
+}
+
+@utility studio-vignette {
+  background: radial-gradient(
+    ellipse at center,
+    transparent 45%,
+    rgb(0 0 0 / 38%) 100%
+  );
+}
+
+@utility model-spot {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--cream) 16%, transparent),
+    color-mix(in oklab, var(--copper) 8%, transparent) 55%,
+    transparent
+  );
+}
+
+/* Край слоя растворяется, а не обрезается — стык с соседней секцией не виден. */
+@utility fade-bottom {
+  mask-image: linear-gradient(to bottom, black 72%, transparent);
+}
+
+/* Плёночное зерно поверх фона-студии — атмосфера без картинок. */
+@utility grain {
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Контурная цифра: медная обводка без заливки. */
+@utility text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklab, var(--copper) 45%, transparent);
+}
+
+/* Текст hero скрыт до старта GSAP, чтобы не мигал; если скрипт так и
+   не запустился, через 3 с CSS показывает его сам. */
+@media (prefers-reduced-motion: no-preference) and (scripting: enabled) {
+  .hero-hidden {
+    visibility: hidden;
+    animation: hero-reveal-fallback 0s 3s forwards;
+  }
+}
+
+@keyframes hero-reveal-fallback {
+  to {
+    visibility: visible;
+  }
+}
+
+/* Бегущая полоска в подсказке «Листайте». */
+@keyframes scroll-cue {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(200%);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

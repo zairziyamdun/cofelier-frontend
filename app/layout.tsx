@@ -13,6 +13,8 @@ const manrope = Manrope({
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin", "cyrillic"],
+  // Курсив — для акцентных слов в заголовках главной.
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
