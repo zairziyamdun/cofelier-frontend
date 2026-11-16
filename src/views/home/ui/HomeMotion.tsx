@@ -44,7 +44,7 @@ export function HomeMotion({ children }: { children: ReactNode }) {
           // Холст создаём на каждый запуск эффекта: после dispose его
           // WebGL-контекст потерян, и повторный монтаж на нём не рисует.
           const canvas = document.createElement("canvas");
-          canvas.className = "block size-full";
+          canvas.className = "block";
           stage.append(canvas);
           try {
             const scene = new StoryScene(
@@ -91,11 +91,12 @@ export function HomeMotion({ children }: { children: ReactNode }) {
         <div className="absolute inset-0 studio-vignette" />
         <div className="absolute inset-0 grain" />
       </div>
-      {/* Слой 3D-сцены: поверх секций, чтобы зёрна летели между карточками. */}
+      {/* Слой 3D-сцены: поверх секций, чтобы зёрна летели между карточками;
+          холст в нём сам встаёт на прокрутку (lib/story-scene). */}
       <div
         ref={stageRef}
         aria-hidden="true"
-        className="pointer-events-none sticky top-0 z-10 -mb-[100lvh] h-lvh"
+        className="pointer-events-none absolute inset-x-0 top-0 z-10"
       />
       {children}
     </main>
