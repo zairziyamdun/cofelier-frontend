@@ -24,6 +24,8 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
+import { gsap } from "@/shared/lib/gsap";
+
 /**
  * turn — предмет «Пути зерна»: поворачивается, проезжая мимо зрителя;
  * arrive — заказ приезжает издалека, пока листаются шаги;
@@ -55,6 +57,8 @@ type Item = {
   offset: number;
   /** Насколько место модели вошло в экран снизу: 0 … 1. */
   progress: number;
+  /** progress со сглаживанием: колесо прокручивает рывками по ~100 px. */
+  eased: number;
   visible: boolean;
   requested: boolean;
   loaded: boolean;
@@ -102,10 +106,8 @@ export class StoryScene {
   private stream?: InstancedMesh;
   private streamCount = 0;
 
-  private frame = 0;
   private disposed = false;
   private drawn = false;
-  private last = 0;
   private time = 0;
   private flowTime = 0;
   private scrollY = 0;
@@ -146,11 +148,11 @@ export class StoryScene {
     this.camera.position.set(0, 0, DISTANCE);
     this.scrollY = window.scrollY;
 
+    // Рисуем из тикера GSAP, после его твинов: к этому моменту ScrollTrigger
+    // уже сдвинул вёрстку в этом кадре, и модели не отстают от мест на кадр.
     if (animated) {
       window.addEventListener("pointermove", this.onPointer, { passive: true });
-      document.addEventListener("visibilitychange", this.onVisibility);
-      this.last = performance.now();
-      this.frame = requestAnimationFrame(this.tick);
+      gsap.ticker.add(this.tick);
     } else {
       // Без анимаций сцена статична: перерисовываем только при прокрутке.
       window.addEventListener("scroll", this.requestStill, { passive: true });
@@ -171,6 +173,7 @@ export class StoryScene {
       radius: 0,
       offset: 0,
       progress: 0,
+      eased: 0,
       visible: false,
       requested: false,
       loaded: false,
@@ -246,11 +249,11 @@ export class StoryScene {
 
   dispose() {
     this.disposed = true;
-    cancelAnimationFrame(this.frame);
+    gsap.ticker.remove(this.tick);
+    gsap.ticker.remove(this.drawStill);
     window.removeEventListener("pointermove", this.onPointer);
     window.removeEventListener("scroll", this.requestStill);
     window.removeEventListener("resize", this.requestStill);
-    document.removeEventListener("visibilitychange", this.onVisibility);
     this.scene.traverse((node) => {
       if (!(node instanceof Mesh)) return;
       const material = node.material as MeshStandardMaterial;
@@ -308,24 +311,20 @@ export class StoryScene {
     this.pointer.y = (event.clientY / window.innerHeight) * 2 - 1;
   };
 
-  private onVisibility = () => {
-    cancelAnimationFrame(this.frame);
-    if (document.hidden || this.disposed) return;
-    this.last = performance.now();
-    this.frame = requestAnimationFrame(this.tick);
+  // Один кадр в тикере GSAP; повторные запросы в том же кадре его не дублируют.
+  private drawStill = () => {
+    gsap.ticker.remove(this.drawStill);
+    this.draw(0);
   };
 
   private requestStill = () => {
-    cancelAnimationFrame(this.frame);
-    this.frame = requestAnimationFrame(() => this.draw(0));
+    gsap.ticker.add(this.drawStill);
   };
 
-  private tick = (now: number) => {
+  private tick = (_time: number, deltaMs: number) => {
     if (this.disposed) return;
-    this.frame = requestAnimationFrame(this.tick);
     // Ограничение шага: после возврата на вкладку ничего не «прыгает».
-    const dt = Math.min((now - this.last) / 1000, 1 / 20);
-    this.last = now;
+    const dt = Math.min(deltaMs / 1000, 1 / 20);
     this.time += dt;
 
     // Быстрая прокрутка разгоняет потоки зёрен — как бегущую строку.
@@ -368,6 +367,11 @@ export class StoryScene {
         ? (cx - width / 2) / (width / 2)
         : (cy - height / 2) / (height / 2);
       item.progress = clamp01((height * 0.95 - cy) / (height * 0.5));
+      // Впервые показанная модель сразу встаёт в нужное состояние.
+      item.eased =
+        item.visible && item.loaded
+          ? MathUtils.damp(item.eased, item.progress, 8, dt)
+          : item.progress;
 
       const near =
         box.bottom > -height && box.top < height * 2 && box.width > 0;
@@ -431,7 +435,7 @@ export class StoryScene {
       pivot.scale.setScalar(Math.max(0.001, size * focus * shown));
     } else if (model.behavior === "arrive") {
       // Заказ едет издалека и докручивается к зрителю «лицом».
-      const arrived = this.animated ? easeOut(item.progress) : 1;
+      const arrived = this.animated ? easeOut(item.eased) : 1;
       pivot.position.z = MathUtils.lerp(-16, 0, arrived);
       pivot.position.y -= (1 - arrived) * size * 1.2;
       pivot.rotation.set(
@@ -442,10 +446,8 @@ export class StoryScene {
       pivot.scale.setScalar(Math.max(0.001, size * shown));
     } else {
       // Напиток поднимается по стакану, под конец сверху падает лёд.
-      const filled = this.animated ? clamp01(item.progress / 0.7) : 1;
-      const dropped = this.animated
-        ? clamp01((item.progress - 0.65) / 0.35)
-        : 1;
+      const filled = this.animated ? clamp01(item.eased / 0.7) : 1;
+      const dropped = this.animated ? clamp01((item.eased - 0.65) / 0.35) : 1;
       if (item.liquid) fill(item.liquid, Math.max(0.02, easeOut(filled)));
       if (item.ice) {
         const fall = 1 - easeOut(dropped);
@@ -454,11 +456,6 @@ export class StoryScene {
       }
       pivot.rotation.set(p.sy * 0.15, yaw + t * 0.3 * idle + p.sx * 0.25, 0);
       pivot.scale.setScalar(Math.max(0.001, size * shown));
-    }
-
-    // Ростер подрагивает, пока через него идёт зерно.
-    if (model.flow === 1 && this.animated) {
-      pivot.position.x += Math.sin(this.time * 46) * 0.004 * size;
     }
   }
 
