@@ -5,10 +5,12 @@ import { buttonVariants } from "@/shared/ui/button";
 
 import { order } from "../config/content";
 
+import { ModelSlot } from "./ModelSlot";
+
 export function OrderSection() {
   return (
     // overflow-x-clip: шаги выезжают справа и до появления торчали бы за край экрана.
-    <section aria-labelledby="order-title" className="overflow-x-clip bg-muted">
+    <section aria-labelledby="order-title" className="overflow-x-clip">
       <div className="mx-auto grid max-w-6xl gap-12 px-4 py-24 md:grid-cols-2 md:py-32">
         <div className="flex flex-col gap-6">
           <h2
@@ -26,12 +28,16 @@ export function OrderSection() {
               href={order.cta.href}
               className={cn(
                 buttonVariants({ size: "lg" }),
-                "min-h-12 rounded-full px-8 text-base",
+                "min-h-12 rounded-full bg-copper px-8 text-base text-charcoal hover:bg-copper/85",
               )}
             >
               {order.cta.label}
             </Link>
           </span>
+          <ModelSlot
+            model="paperCup"
+            className="h-64 w-full max-w-xs md:h-80"
+          />
         </div>
 
         <ol data-order className="relative flex flex-col gap-10">

@@ -12,22 +12,13 @@ export function HeroSection() {
     <section
       data-hero
       aria-labelledby="hero-title"
-      className="relative isolate flex min-h-[calc(100svh-6.5rem)] items-center overflow-hidden bg-charcoal text-cream sm:min-h-[calc(100svh-4rem)]"
+      className="relative isolate flex min-h-[calc(100svh-6.5rem)] items-center overflow-hidden sm:min-h-[calc(100svh-4rem)]"
     >
-      <div
-        aria-hidden="true"
-        data-hero-glow
-        className="pointer-events-none absolute top-[-20%] right-[-30%] -z-10 size-[110vmax] hero-glow md:right-[-15%] md:size-[80vmax]"
-      />
       <BeanSceneLazy />
       {/* Затемнение под текстом: зёрна не мешают читать. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-linear-to-b from-charcoal/85 via-charcoal/40 to-transparent md:bg-linear-to-r md:from-charcoal md:via-charcoal/50"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 grain"
+        className="pointer-events-none absolute inset-0 bg-linear-to-b from-charcoal/85 via-charcoal/40 to-transparent fade-bottom md:bg-linear-to-r md:from-charcoal/90 md:via-charcoal/40"
       />
 
       <div

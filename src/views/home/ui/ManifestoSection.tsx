@@ -4,7 +4,7 @@ export function ManifestoSection() {
   return (
     <section
       aria-labelledby="manifesto-title"
-      className="relative bg-charcoal py-24 text-cream md:py-40"
+      className="relative py-24 md:py-40"
     >
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 md:gap-24">
         <div className="flex flex-col gap-6">

@@ -3,7 +3,7 @@ import { origins } from "../config/content";
 // Строка повторена дважды: цикл сдвигает ряд ровно на одну копию — шов не виден.
 export function OriginsMarquee() {
   return (
-    <div className="overflow-hidden bg-charcoal py-10 md:py-16">
+    <div className="overflow-x-clip py-10 md:py-16">
       <section
         data-marquee
         aria-label="Страны, откуда наше зерно"

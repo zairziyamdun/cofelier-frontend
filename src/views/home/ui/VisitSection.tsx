@@ -6,22 +6,13 @@ import { buttonVariants } from "@/shared/ui/button";
 
 import { visit } from "../config/content";
 
+import { ModelSlot } from "./ModelSlot";
+
 export function VisitSection() {
   return (
-    <section
-      aria-labelledby="visit-title"
-      className="relative isolate overflow-hidden bg-charcoal text-cream"
-    >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-[-60%] left-1/2 -z-10 size-[90vmax] -translate-x-1/2 hero-glow opacity-70"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 grain"
-      />
-
+    <section aria-labelledby="visit-title" className="relative">
       <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-8 px-4 py-24 md:items-center md:py-40 md:text-center">
+        <ModelSlot model="icedLatte" className="h-72 w-56 md:h-96 md:w-72" />
         <p className="text-xs tracking-[0.3em] text-copper uppercase sm:text-sm">
           {visit.eyebrow}
         </p>

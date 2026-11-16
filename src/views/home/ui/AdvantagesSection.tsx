@@ -18,7 +18,7 @@ export function AdvantagesSection() {
           <li
             key={item.title}
             data-reveal
-            className="group relative flex flex-col gap-4 overflow-hidden rounded-3xl border border-border bg-card p-8 transition-[border-color,translate,box-shadow] duration-500 hover:-translate-y-2 hover:border-copper/60 hover:shadow-[0_24px_48px_-24px] hover:shadow-copper/40"
+            className="group relative flex flex-col gap-4 overflow-hidden rounded-3xl border border-cream/10 bg-cream/[0.03] p-8 transition-[border-color,translate,box-shadow] duration-500 hover:-translate-y-2 hover:border-copper/60 hover:shadow-[0_24px_48px_-24px] hover:shadow-copper/40"
           >
             <span className="font-heading text-sm text-muted-foreground">
               {String(index + 1).padStart(2, "0")}

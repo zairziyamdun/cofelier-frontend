@@ -1,19 +1,6 @@
-import {
-  Coffee,
-  Flame,
-  Hourglass,
-  Sprout,
-  type LucideIcon,
-} from "lucide-react";
+import { journey } from "../config/content";
 
-import { journey, type JourneyIcon } from "../config/content";
-
-const icons: Record<JourneyIcon, LucideIcon> = {
-  sprout: Sprout,
-  flame: Flame,
-  hourglass: Hourglass,
-  coffee: Coffee,
-};
+import { ModelSlot } from "./ModelSlot";
 
 // На телефоне — вертикальная лента; с md секция закрепляется
 // и шаги прокручиваются горизонтально (см. lib/home-motion).
@@ -22,7 +9,7 @@ export function JourneySection() {
     <section
       data-journey
       aria-labelledby="journey-title"
-      className="relative overflow-hidden border-t border-cream/10 bg-charcoal text-cream md:h-svh"
+      className="relative overflow-hidden md:h-svh"
     >
       <div
         data-journey-track
@@ -52,38 +39,35 @@ export function JourneySection() {
           </p>
         </div>
 
-        {journey.steps.map((step, index) => {
-          const Icon = icons[step.icon];
-          return (
-            <article
-              key={step.title}
-              data-journey-panel
-              className="relative flex min-h-[26rem] flex-col justify-end overflow-hidden rounded-3xl border border-cream/10 bg-cream/[0.03] p-6 md:min-h-0 md:w-[min(34rem,40vw)] md:p-10"
+        {journey.steps.map((step, index) => (
+          <article
+            key={step.title}
+            data-journey-panel
+            className="relative flex min-h-[30rem] flex-col justify-end overflow-hidden rounded-3xl border border-cream/10 bg-cream/[0.03] p-6 md:min-h-0 md:w-[min(34rem,40vw)] md:p-10"
+          >
+            <span
+              aria-hidden="true"
+              data-journey-num
+              className="pointer-events-none absolute -top-6 right-0 font-heading text-[clamp(9rem,22vw,18rem)] leading-none text-outline"
             >
-              <span
-                aria-hidden="true"
-                data-journey-num
-                className="pointer-events-none absolute -top-6 right-0 font-heading text-[clamp(9rem,22vw,18rem)] leading-none text-outline"
-              >
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <div data-journey-body className="relative flex flex-col gap-4">
-                <Icon
-                  aria-hidden="true"
-                  className="size-10 text-copper"
-                  strokeWidth={1.25}
-                />
-                <p className="text-xs tracking-[0.25em] text-cream/50 uppercase">
-                  {step.kicker}
-                </p>
-                <h3 className="font-heading text-4xl md:text-5xl">
-                  {step.title}
-                </h3>
-                <p className="max-w-sm text-cream/70 md:text-lg">{step.text}</p>
-              </div>
-            </article>
-          );
-        })}
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            {/* Предмет шага занимает всё место карточки над текстом. */}
+            <ModelSlot model={step.model} className="min-h-40 flex-1" />
+            <div
+              data-journey-body
+              className="relative flex shrink-0 flex-col gap-4"
+            >
+              <p className="text-xs tracking-[0.25em] text-cream/50 uppercase">
+                {step.kicker}
+              </p>
+              <h3 className="font-heading text-4xl md:text-5xl">
+                {step.title}
+              </h3>
+              <p className="max-w-sm text-cream/70 md:text-lg">{step.text}</p>
+            </div>
+          </article>
+        ))}
       </div>
 
       <div

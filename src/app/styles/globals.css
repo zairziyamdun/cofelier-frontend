@@ -127,18 +127,64 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Главная: медное свечение за зерном и в финальной секции. */
-@utility hero-glow {
+/* Главная — одна студия: два «софтбокса» на общем фоне двигаются при
+   прокрутке (lib/home-motion), поэтому у секций нет своих фонов и швов. */
+@utility studio-key {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110vmax;
+  height: 110vmax;
+  margin: -55vmax 0 0 -55vmax;
+  translate: 28vw -6vh;
   border-radius: 9999px;
   background: radial-gradient(
     closest-side,
-    color-mix(in oklab, var(--copper) 38%, transparent),
+    color-mix(in oklab, var(--copper) 34%, transparent),
+    color-mix(in oklab, var(--copper) 9%, transparent) 50%,
+    transparent
+  );
+}
+
+@utility studio-fill {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90vmax;
+  height: 90vmax;
+  margin: -45vmax 0 0 -45vmax;
+  translate: -38vw 34vh;
+  border-radius: 9999px;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--cream) 7%, transparent),
+    transparent
+  );
+}
+
+@utility studio-vignette {
+  background: radial-gradient(
+    ellipse at center,
+    transparent 45%,
+    rgb(0 0 0 / 38%) 100%
+  );
+}
+
+@utility model-spot {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--cream) 16%, transparent),
     color-mix(in oklab, var(--copper) 8%, transparent) 55%,
     transparent
   );
 }
 
-/* Плёночное зерно поверх тёмных секций — атмосфера без картинок. */
+/* Край слоя растворяется, а не обрезается — стык с соседней секцией не виден. */
+@utility fade-bottom {
+  mask-image: linear-gradient(to bottom, black 72%, transparent);
+}
+
+/* Плёночное зерно поверх фона-студии — атмосфера без картинок. */
 @utility grain {
   opacity: 0.08;
   mix-blend-mode: overlay;

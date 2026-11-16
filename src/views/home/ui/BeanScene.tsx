@@ -110,7 +110,7 @@ export default function BeanScene() {
       ref={wrapRef}
       aria-hidden="true"
       className={cn(
-        "absolute inset-0 opacity-0 transition-opacity duration-[1600ms] ease-out",
+        "absolute inset-0 fade-bottom opacity-0 transition-opacity duration-[1600ms] ease-out",
         ready && "opacity-100",
       )}
     />

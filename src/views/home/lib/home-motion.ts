@@ -20,6 +20,7 @@ export function setupHomeMotion(root: HTMLElement) {
         context.conditions as gsap.Conditions;
       if (!motion) return;
 
+      studioLights(root);
       heroIntro(root);
       heroOutro(root);
       splitHeadings(root);
@@ -67,30 +68,60 @@ function heroIntro(root: HTMLElement) {
   });
 }
 
-// При уходе hero текст поднимается и гаснет, свечение отстаёт — даёт глубину.
+// Свет студии переезжает от секции к секции: фон один на всю страницу,
+// а меняется только то, откуда «светят» два источника.
+function studioLights(root: HTMLElement) {
+  const key = root.querySelector("[data-studio-key]");
+  const fill = root.querySelector("[data-studio-fill]");
+  if (!key || !fill) return;
+
+  // Точки пути — сдвиг от исходного места (hero: свет справа, за зерном).
+  const keyPath = [
+    { x: "-52vw", y: "12vh" },
+    { x: "-8vw", y: "-22vh" },
+    { x: "-58vw", y: "4vh" },
+    { x: "6vw", y: "14vh" },
+    { x: "-28vw", y: "34vh" },
+  ];
+  const fillPath = [
+    { x: "70vw", y: "-50vh" },
+    { x: "20vw", y: "0vh" },
+    { x: "76vw", y: "-30vh" },
+    { x: "10vw", y: "-10vh" },
+    { x: "38vw", y: "-60vh" },
+  ];
+
+  const timeline = gsap.timeline({
+    defaults: { ease: "sine.inOut" },
+    scrollTrigger: {
+      trigger: root,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: 1.2,
+    },
+  });
+  keyPath.forEach((point, index) => {
+    timeline.to(key, { ...point, duration: 1 }, index);
+    timeline.to(fill, { ...fillPath[index], duration: 1 }, index);
+  });
+}
+
+// При уходе hero текст поднимается и гаснет.
 function heroOutro(root: HTMLElement) {
   const hero = root.querySelector<HTMLElement>("[data-hero]");
   const content = hero?.querySelector("[data-hero-content]");
-  const glow = hero?.querySelector("[data-hero-glow]");
-  if (!hero || !content || !glow) return;
-  const scrub = {
-    trigger: hero,
-    start: "top top",
-    end: "bottom top",
-    scrub: true,
-  };
+  if (!hero || !content) return;
 
   gsap.to(content, {
     yPercent: -18,
     autoAlpha: 0,
     ease: "none",
-    scrollTrigger: scrub,
-  });
-  gsap.to(glow, {
-    yPercent: 35,
-    scale: 1.25,
-    ease: "none",
-    scrollTrigger: scrub,
+    scrollTrigger: {
+      trigger: hero,
+      start: "top top",
+      end: "bottom top",
+      scrub: true,
+    },
   });
 }
 
