@@ -66,11 +66,23 @@ export function HomeMotion({ children }: { children: ReactNode }) {
           }
         })
         .catch(() => undefined);
-    const cancelIdle = whenIdle(start, 3000);
+    // Сцену создаём, когда до первого предмета остаётся экран: при
+    // обновлении наверху её запуск не толкается с загрузкой hero.
+    let cancelIdle: (() => void) | undefined;
+    const near = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        near.disconnect();
+        cancelIdle = whenIdle(start, 1500);
+      },
+      { rootMargin: "100% 0px" },
+    );
+    for (const slot of slots) near.observe(slot);
 
     return () => {
       cancelled = true;
-      cancelIdle();
+      near.disconnect();
+      cancelIdle?.();
       cleanup?.();
     };
   }, []);

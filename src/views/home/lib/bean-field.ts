@@ -163,6 +163,9 @@ export class BeanField {
     this.field.frustumCulled = false;
     this.scene.add(this.field);
     this.seedDrifters();
+    // Шейдеры компилируются в фоне: иначе первый кадр блокирует поток
+    // на десятки мс прямо во время появления hero.
+    await this.renderer.compileAsync(this.scene, this.camera);
   }
 
   setAnimated(animated: boolean) {

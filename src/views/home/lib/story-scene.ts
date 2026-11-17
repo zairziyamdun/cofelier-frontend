@@ -255,8 +255,13 @@ export class StoryScene {
           material,
           ...collectTextures(material),
         );
-        this.stream = stream;
-        this.scene.add(stream);
+        return this.renderer
+          .compileAsync(stream, this.camera, this.scene)
+          .then(() => {
+            if (this.disposed) return;
+            this.stream = stream;
+            this.scene.add(stream);
+          });
       })
       .catch(() => undefined);
   }
@@ -312,6 +317,13 @@ export class StoryScene {
         holder.add(gltf.scene);
         // Приводим к единичной сфере: дальше размер задаёт место в вёрстке.
         holder.scale.setScalar(1 / sphere.radius);
+        // Шейдеры — в фоне, до показа: иначе первый кадр с моделью подвисает.
+        return this.renderer
+          .compileAsync(holder, this.camera, this.scene)
+          .then(() => holder);
+      })
+      .then((holder) => {
+        if (this.disposed || !holder) return;
         item.pivot.add(holder);
         item.loaded = true;
         if (!this.animated) this.requestStill();
