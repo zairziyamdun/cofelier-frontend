@@ -194,10 +194,14 @@ function journey(root: HTMLElement, desktop: boolean) {
 
   if (!desktop) {
     for (const panel of panels) {
-      gsap.from(panel, {
+      // Карточку с моделью не двигаем: 3D-предмет едет вместе со слотом
+      // и при быстрой прокрутке дёргался бы; появляется только текст.
+      const body = panel.querySelectorAll("[data-journey-body] > *");
+      gsap.from(body.length ? body : panel, {
         y: 64,
         autoAlpha: 0,
         duration: 1,
+        stagger: 0.08,
         ease: "expo.out",
         scrollTrigger: { trigger: panel, start: "top 85%", once: true },
       });
@@ -215,7 +219,9 @@ function journey(root: HTMLElement, desktop: boolean) {
       end: () => `+=${distance()}`,
       pin: true,
       scrub: 1,
-      anticipatePin: 1,
+      // Упреждение ≈ скорость × 13 мс, около кадра: при 1 (≈ 45 мс) секция
+      // на быстрой прокрутке закреплялась на 150+ px раньше и прыгала вверх.
+      anticipatePin: 0.3,
       invalidateOnRefresh: true,
     },
   });
