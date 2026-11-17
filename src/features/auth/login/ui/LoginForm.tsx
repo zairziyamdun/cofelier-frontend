@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { FormEvent } from "react";
 
 import { homePathFor } from "@/entities/user";
+import { isRateLimited, useRateLimitCooldown } from "@/shared/api";
 import { safeRedirectPath } from "@/shared/lib/redirect";
 import { Button } from "@/shared/ui/button";
 import { Field, Input } from "@/shared/ui/input";
@@ -15,6 +16,7 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const login = useLogin();
+  const cooldown = useRateLimitCooldown();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,6 +36,7 @@ export function LoginForm() {
           // Серверные компоненты перечитают сессию из новой cookie.
           router.refresh();
         },
+        onError: cooldown.startIfRateLimited,
       },
     );
   }
@@ -60,19 +63,32 @@ export function LoginForm() {
         />
       </Field>
 
-      {login.error && (
+      {cooldown.isCoolingDown ? (
         <p role="alert" className="text-sm text-destructive">
-          {login.error.message}
+          Слишком много попыток входа. Попробуйте снова через{" "}
+          {cooldown.secondsLeft} с.
         </p>
+      ) : (
+        // После отсчёта 429 уже не актуальна — форму можно отправить снова.
+        login.error &&
+        !isRateLimited(login.error) && (
+          <p role="alert" className="text-sm text-destructive">
+            {login.error.message}
+          </p>
+        )
       )}
 
       <Button
         type="submit"
         size="lg"
         className="min-h-11"
-        disabled={login.isPending}
+        disabled={login.isPending || cooldown.isCoolingDown}
       >
-        {login.isPending ? "Входим…" : "Войти"}
+        {login.isPending
+          ? "Входим…"
+          : cooldown.isCoolingDown
+            ? `Подождите ${cooldown.secondsLeft} с`
+            : "Войти"}
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         Нет аккаунта?{" "}
