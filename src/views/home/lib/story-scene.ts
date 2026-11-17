@@ -24,7 +24,7 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
-import { gsap } from "@/shared/lib/gsap";
+import { gsap, ScrollTrigger } from "@/shared/lib/gsap";
 
 /**
  * turn — предмет «Пути зерна»: поворачивается, проезжая мимо зрителя;
@@ -73,6 +73,9 @@ type Bean = { phase: number; speed: number; jitter: Vector3; spin: Vector3 };
 const FOV = 25;
 const DISTANCE = 10;
 const MAX_PIXEL_RATIO = 1.5;
+// Запас холста сверху и снизу, доля экрана: браузер прокручивает страницу
+// в своём потоке на кадр-два раньше перерисовки, и края не должны оголяться.
+const OVERSCAN = 0.2;
 const BEANS_PER_STREAM = 14;
 // Сырое зерно светлее и зеленее обжаренного: множитель поверх текстуры.
 const RAW_TINT = new Color(1.7, 1.95, 1.05);
@@ -147,6 +150,17 @@ export class StoryScene {
 
     this.camera.position.set(0, 0, DISTANCE);
     this.scrollY = window.scrollY;
+
+    // Холст едет вместе со страницей, а не прилипает к экрану: прилипший
+    // слой браузер сдвигает раньше, чем мы перерисуем модели, и они дёргаются.
+    Object.assign(canvas.style, {
+      position: "absolute",
+      left: "0",
+      top: "0",
+      width: "100%",
+      height: `${100 * (1 + 2 * OVERSCAN)}lvh`,
+      willChange: "transform",
+    });
 
     // Рисуем из тикера GSAP, после его твинов: к этому моменту ScrollTrigger
     // уже сдвинул вёрстку в этом кадре, и модели не отстают от мест на кадр.
@@ -241,8 +255,13 @@ export class StoryScene {
           material,
           ...collectTextures(material),
         );
-        this.stream = stream;
-        this.scene.add(stream);
+        return this.renderer
+          .compileAsync(stream, this.camera, this.scene)
+          .then(() => {
+            if (this.disposed) return;
+            this.stream = stream;
+            this.scene.add(stream);
+          });
       })
       .catch(() => undefined);
   }
@@ -298,6 +317,13 @@ export class StoryScene {
         holder.add(gltf.scene);
         // Приводим к единичной сфере: дальше размер задаёт место в вёрстке.
         holder.scale.setScalar(1 / sphere.radius);
+        // Шейдеры — в фоне, до показа: иначе первый кадр с моделью подвисает.
+        return this.renderer
+          .compileAsync(holder, this.camera, this.scene)
+          .then(() => holder);
+      })
+      .then((holder) => {
+        if (this.disposed || !holder) return;
         item.pivot.add(holder);
         item.loaded = true;
         if (!this.animated) this.requestStill();
@@ -337,7 +363,38 @@ export class StoryScene {
     this.draw(dt);
   };
 
+  /**
+   * Ставит холст на текущую прокрутку. Внутри закреплённой секции (pin)
+   * вёрстка стоит на экране — туда же фиксируется и холст; в остальной
+   * странице он лежит в документе и прокручивается вместе с моделями.
+   */
+  private place() {
+    const canvas = this.canvas;
+    const stage = canvas.parentElement;
+    if (!stage) return;
+    const fullHeight = canvas.offsetHeight;
+    const overscan = Math.round((fullHeight * OVERSCAN) / (1 + 2 * OVERSCAN));
+    const pinned = ScrollTrigger.getAll().some(({ pin }) => {
+      // Смотрим на сам стиль: с anticipatePin закрепление ставится раньше isActive.
+      if (!(pin instanceof HTMLElement) || pin.style.position !== "fixed")
+        return false;
+      return this.items.some((item) => pin.contains(item.slot));
+    });
+
+    let y = -overscan;
+    if (pinned) {
+      canvas.style.position = "fixed";
+    } else {
+      canvas.style.position = "absolute";
+      // Не выходим за низ сцены: иначе холст удлиняет страницу.
+      const room = (stage.parentElement?.offsetHeight ?? Infinity) - fullHeight;
+      y = Math.min(y - stage.getBoundingClientRect().top, room);
+    }
+    canvas.style.transform = `translate3d(0, ${Math.round(y)}px, 0)`;
+  }
+
   private draw(dt: number) {
+    this.place();
     const rect = this.canvas.getBoundingClientRect();
     const width = Math.round(rect.width);
     const height = Math.round(rect.height);
@@ -355,33 +412,37 @@ export class StoryScene {
       (2 * DISTANCE * Math.tan(MathUtils.degToRad(FOV / 2))) / height;
     const flow = this.flowItems();
     const horizontal = this.isHorizontal(flow);
+    // Ход анимаций считаем от экрана, а не от холста: холст выше экрана.
+    const vw = document.documentElement.clientWidth;
+    const vh = window.innerHeight;
 
     let anyVisible = false;
     for (const item of this.items) {
       const box = item.slot.getBoundingClientRect();
-      const cx = box.left + box.width / 2 - rect.left;
-      const cy = box.top + box.height / 2 - rect.top;
+      const vx = box.left + box.width / 2;
+      const vy = box.top + box.height / 2;
+      const cx = vx - rect.left;
+      const cy = vy - rect.top;
       item.center.set((cx - width / 2) * unit, -(cy - height / 2) * unit, 0);
       item.radius = (Math.min(box.width, box.height) / 2) * unit;
       item.offset = horizontal
-        ? (cx - width / 2) / (width / 2)
-        : (cy - height / 2) / (height / 2);
-      item.progress = clamp01((height * 0.95 - cy) / (height * 0.5));
+        ? (vx - vw / 2) / (vw / 2)
+        : (vy - vh / 2) / (vh / 2);
+      item.progress = clamp01((vh * 0.95 - vy) / (vh * 0.5));
       // Впервые показанная модель сразу встаёт в нужное состояние.
       item.eased =
         item.visible && item.loaded
           ? MathUtils.damp(item.eased, item.progress, 8, dt)
           : item.progress;
 
-      const near =
-        box.bottom > -height && box.top < height * 2 && box.width > 0;
+      const near = box.bottom > -vh && box.top < vh * 2 && box.width > 0;
       if (near && !item.requested) this.load(item);
       item.visible =
         box.width > 0 &&
-        box.bottom > -height * 0.2 &&
-        box.top < height * 1.2 &&
-        box.right > -width * 0.2 &&
-        box.left < width * 1.2;
+        box.bottom > -vh * 0.2 &&
+        box.top < vh * 1.2 &&
+        box.right > -vw * 0.2 &&
+        box.left < vw * 1.2;
       anyVisible ||= item.visible && item.loaded;
     }
 

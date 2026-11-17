@@ -12,9 +12,14 @@ type NetworkInformation = { saveData?: boolean };
 
 // Холст с зёрнами на всю площадь hero. Чисто декоративный: без WebGL,
 // в режиме экономии трафика или при ошибке загрузки hero остаётся без 3D.
-export default function BeanScene() {
+export default function BeanScene({ onReady }: { onReady?: () => void }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
+  // Через ref: смена колбэка у родителя не должна пересоздавать WebGL-сцену.
+  const onReadyRef = useRef(onReady);
+  useEffect(() => {
+    onReadyRef.current = onReady;
+  });
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -89,6 +94,7 @@ export default function BeanScene() {
         resize();
         sync();
         setReady(true);
+        onReadyRef.current?.();
       })
       // Сцена — украшение: без модели hero просто остаётся с градиентом.
       .catch(() => undefined);
