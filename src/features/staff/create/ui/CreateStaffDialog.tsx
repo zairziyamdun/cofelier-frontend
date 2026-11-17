@@ -129,7 +129,7 @@ function StaffForm({
       <Field
         label="Временный пароль"
         htmlFor="staff-password"
-        hint="Не короче 8 символов. Сгенерирован случайно — можно заменить."
+        hint="От 8 символов, буквы и цифры. Сгенерирован случайно — можно заменить."
       >
         <div className="flex gap-2">
           <Input
