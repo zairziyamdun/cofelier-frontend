@@ -215,6 +215,69 @@
   }
 }
 
+/* Скелетон текста hero: пока не пришёл JS (медленная сеть, тяжёлая
+   гидрация), на месте строк — мягко пульсирующие полосы. Сам текст скрыт
+   через visibility, а псевдоэлемент показывает себя явно. */
+@media (prefers-reduced-motion: no-preference) and (scripting: enabled) {
+  [data-hero]:not([data-hero-started]) :is(p, h1).hero-hidden,
+  [data-hero]:not([data-hero-started]) .hero-hidden > [data-magnetic] {
+    position: relative;
+  }
+
+  /* Полосы по ширине текста, а не колонки; текст выровнен влево и не сдвигается. */
+  [data-hero]:not([data-hero-started]) :is(p, h1).hero-hidden {
+    width: fit-content;
+  }
+
+  [data-hero]:not([data-hero-started]) :is(p, h1).hero-hidden::before,
+  [data-hero]:not([data-hero-started]) .hero-hidden > [data-magnetic]::before {
+    position: absolute;
+    inset: 0;
+    visibility: visible;
+    content: "";
+    animation:
+      skeleton-pulse 1.6s ease-in-out infinite,
+      hero-skeleton-off 0s 3s forwards;
+  }
+
+  /* Каждая строка текста — своя полоса: 1lh — высота строки элемента. */
+  [data-hero]:not([data-hero-started]) :is(p, h1).hero-hidden::before {
+    background: repeating-linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--cream) 9%, transparent) 0 0.72lh,
+      transparent 0.72lh 1lh
+    );
+    background-position-y: 0.14lh;
+    border-radius: 0.5rem;
+  }
+
+  [data-hero]:not([data-hero-started]) .hero-hidden > [data-magnetic]::before {
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--cream) 9%, transparent);
+  }
+}
+
+@keyframes skeleton-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* Вместе с запасным показом текста через 3 с уходит и скелетон. */
+@keyframes hero-skeleton-off {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* Свечение на месте зерна, пока грузится 3D-сцена. */
+@keyframes bean-skeleton {
+  50% {
+    opacity: 0.55;
+    transform: scale(0.94);
+  }
+}
+
 /* Бегущая полоска в подсказке «Листайте». */
 @keyframes scroll-cue {
   0% {

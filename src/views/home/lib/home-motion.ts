@@ -1,5 +1,7 @@
 import { gsap, MOTION_OK, ScrollTrigger, SplitText } from "@/shared/lib/gsap";
 
+import { markHeroIntroDone } from "./hero-intro";
+
 // Анимации главной. Разметка серверная и размечена data-атрибутами;
 // здесь только поведение. Без JS и при prefers-reduced-motion всё видно сразу.
 
@@ -18,7 +20,12 @@ export function setupHomeMotion(root: HTMLElement) {
     (context) => {
       const { motion, desktop, finePointer } =
         context.conditions as gsap.Conditions;
-      if (!motion) return;
+      const hero = root.querySelector<HTMLElement>("[data-hero]");
+      if (!motion) {
+        // Без анимаций интро нет — 3D-сцене hero ждать нечего.
+        if (hero) markHeroIntroDone(hero);
+        return;
+      }
 
       studioLights(root);
       heroIntro(root);
@@ -39,9 +46,15 @@ export function setupHomeMotion(root: HTMLElement) {
 
 // Заголовок собирается по буквам из-под маски, остальное — следом.
 function heroIntro(root: HTMLElement) {
-  const title = root.querySelector<HTMLElement>("[data-hero-title]");
-  if (!title) return;
+  const hero = root.querySelector<HTMLElement>("[data-hero]");
+  const title = hero?.querySelector<HTMLElement>("[data-hero-title]");
+  if (!hero || !title) {
+    if (hero) markHeroIntroDone(hero);
+    return;
+  }
 
+  // Скелетон текста (globals.css) уходит, как только интро готово начаться.
+  hero.setAttribute("data-hero-started", "");
   const fades = all(root, "[data-hero-fade]");
   gsap.set(fades, { autoAlpha: 0, y: 32 });
 
@@ -51,7 +64,12 @@ function heroIntro(root: HTMLElement) {
     autoSplit: true,
     onSplit(self) {
       gsap.set(title, { autoAlpha: 1 });
-      const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
+      // 3D-сцена стартует после интро: её запуск блокирует поток
+      // на сотни мс, и буквы в это время шли бы рывками.
+      const tl = gsap.timeline({
+        defaults: { ease: "expo.out" },
+        onComplete: () => markHeroIntroDone(hero),
+      });
       tl.from(self.chars, {
         yPercent: 120,
         rotate: 8,
