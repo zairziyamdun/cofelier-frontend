@@ -37,7 +37,7 @@ export function CheckoutForm({ lines, total, onPlaced }: CheckoutFormProps) {
   // Сбой сервера — не повод звать вошедшего человека входить заново.
   if (unavailable) {
     return (
-      <div className="flex flex-col items-start gap-4 rounded-xl border border-border bg-card p-6">
+      <div className="flex flex-col items-start gap-4 rounded-xl border border-border bg-card p-4 sm:p-6">
         <p>Не удалось проверить вход: сервер не отвечает.</p>
         <Button
           size="lg"
@@ -54,7 +54,7 @@ export function CheckoutForm({ lines, total, onPlaced }: CheckoutFormProps) {
 
   if (!user) {
     return (
-      <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6">
+      <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:p-6">
         <p>Войдите, чтобы оформить предзаказ — так вы увидите его статус.</p>
         <div className="flex flex-wrap gap-2">
           <Link
@@ -63,6 +63,7 @@ export function CheckoutForm({ lines, total, onPlaced }: CheckoutFormProps) {
           >
             Войти
           </Link>
+          {/* Короткая подпись: длинное «Зарегистрироваться» не влезает в узкий экран. */}
           <Link
             href="/register"
             className={cn(
@@ -70,7 +71,7 @@ export function CheckoutForm({ lines, total, onPlaced }: CheckoutFormProps) {
               "min-h-11 px-6",
             )}
           >
-            Зарегистрироваться
+            Регистрация
           </Link>
         </div>
       </div>
@@ -79,7 +80,7 @@ export function CheckoutForm({ lines, total, onPlaced }: CheckoutFormProps) {
 
   if (isStaff(user.role)) {
     return (
-      <p className="rounded-xl border border-dashed border-border p-6 text-muted-foreground">
+      <p className="rounded-xl border border-dashed border-border p-4 text-muted-foreground sm:p-6">
         Предзаказ оформляют клиенты. Вы вошли как сотрудник.
       </p>
     );
@@ -102,7 +103,7 @@ export function CheckoutForm({ lines, total, onPlaced }: CheckoutFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6"
+      className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:p-6"
     >
       <Field label="Когда зайдёте" htmlFor="checkout-pickup">
         <Select id="checkout-pickup" name="pickupAt" defaultValue="">

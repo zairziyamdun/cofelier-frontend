@@ -16,7 +16,7 @@ export function ManifestoSection() {
           </h2>
           <p
             data-manifesto
-            className="max-w-5xl font-heading text-[clamp(1.75rem,5vw,3.75rem)] leading-[1.15]"
+            className="max-w-5xl font-heading text-[clamp(1.5rem,5vw,3.75rem)] leading-[1.15] break-words min-[360px]:text-[clamp(1.75rem,5vw,3.75rem)]"
           >
             {manifesto.text}
           </p>

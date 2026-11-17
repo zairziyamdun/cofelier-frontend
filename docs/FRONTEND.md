@@ -159,7 +159,17 @@ src/entities/menu-item/
   `/api/*` проксирует `rewrites` в `next.config.ts` на `BACKEND_URL`),
   **на сервере** — `BACKEND_URL`. Так cookie входа принадлежит домену сайта,
   даже когда API на другом (Vercel + Railway, `docs/DEPLOY.md`). `unwrap(result)` отдаёт данные или
-  бросает `ApiError` с текстом бэкенда. Голого `fetch` нет.
+  бросает `ApiError` с текстом бэкенда (для `429` — ещё `retryAfterSeconds`
+  из `Retry-After`). Голого `fetch` нет.
+- **Лимит попыток** (есть): вход и регистрация на бэкенде — 10 запросов в
+  минуту с IP. На `429` форма зовёт `useRateLimitCooldown` из `shared/api`:
+  показывает отсчёт и блокирует кнопку до конца лимита.
+- **Пароль** (есть): правила — `passwordRules` / `passwordProblem` из
+  `entities/user` (8–128 символов, буква и цифра), копия
+  `common/password-policy.ts` бэкенда — менять вместе. Регистрация
+  показывает их списком, проверяет до отправки и требует «Повторите
+  пароль»; временный пароль сотрудника генерируется так, чтобы им
+  соответствовать.
 - **Контракт** (есть): схема бэкенда лежит в `openapi/openapi.json`
   (коммитится). `pnpm sync:api` берёт свежую из `../cofelier-backend`
   (`openapi:export`, без БД) и генерирует типы; `pnpm gen:api` (и

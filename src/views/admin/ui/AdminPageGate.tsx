@@ -33,7 +33,7 @@ async function Gate({
 export function AdminPageSkeleton() {
   return (
     <div className="flex animate-pulse flex-col gap-4">
-      <div className="h-10 w-56 rounded-lg bg-muted" />
+      <div className="h-10 w-56 max-w-full rounded-lg bg-muted" />
       <div className="h-24 max-w-xl rounded-xl bg-muted" />
     </div>
   );

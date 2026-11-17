@@ -27,12 +27,12 @@ export function Header() {
           aria-label="Основное меню"
           className="order-last w-full sm:order-none sm:ml-auto sm:w-auto"
         >
-          <ul className="flex items-center justify-between sm:gap-2">
+          <ul className="flex flex-wrap items-center justify-between sm:gap-2">
             {navigation.map((link) => (
               <li key={link.href}>
                 <NavLink
                   href={link.href}
-                  className="flex min-h-11 items-center rounded-lg px-2 font-medium hover:bg-muted sm:px-4"
+                  className="flex min-h-11 items-center rounded-lg px-0.5 font-medium whitespace-nowrap hover:bg-muted min-[360px]:px-2 sm:px-4"
                 >
                   {link.label}
                 </NavLink>
