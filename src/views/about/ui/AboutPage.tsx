@@ -10,7 +10,7 @@ export function AboutPage() {
     <main className="flex-1">
       <section className="mx-auto max-w-3xl px-4 py-12 md:py-16">
         <p className="text-sm tracking-[0.2em] text-copper uppercase">О нас</p>
-        <h1 className="mt-2 font-heading text-4xl md:text-5xl">
+        <h1 className="mt-2 font-heading text-3xl break-words min-[360px]:text-4xl md:text-5xl">
           Кофейня-мастерская со своей обжаркой
         </h1>
         <div className="mt-6 flex flex-col gap-4 text-lg text-muted-foreground">

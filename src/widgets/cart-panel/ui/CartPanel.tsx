@@ -47,7 +47,7 @@ export function CartPanel() {
   const total = cartTotal(cart);
 
   return (
-    <div className="grid gap-8 md:grid-cols-[3fr_2fr] md:items-start">
+    <div className="grid grid-cols-1 gap-8 md:grid-cols-[3fr_2fr] md:items-start">
       <section
         aria-labelledby="cart-lines-title"
         className="flex flex-col gap-4"
@@ -57,29 +57,33 @@ export function CartPanel() {
         </h2>
         <ul className="divide-y divide-border rounded-xl border border-border bg-card">
           {cart.map((line) => (
+            // Узкий экран: название и крестик сверху, количество и сумма под ними;
+            // с sm обёртка растворяется (contents) и всё встаёт в одну строку.
             <li
               key={line.menuItemId}
-              className="flex flex-wrap items-center justify-between gap-4 p-4"
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-2 gap-y-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto_6rem_auto] sm:items-center sm:gap-x-4"
             >
-              <div className="min-w-0 flex-1">
-                <p className="font-medium">{line.name}</p>
+              <div className="min-w-0">
+                <p className="font-medium break-words">{line.name}</p>
                 <p className="text-sm text-muted-foreground">
                   {formatPrice(line.price)} за шт.
                 </p>
               </div>
-              <QuantityStepper
-                menuItemId={line.menuItemId}
-                name={line.name}
-                quantity={line.quantity}
-              />
-              <span className="w-24 text-right font-semibold text-copper">
-                {formatPrice(line.price * line.quantity)}
-              </span>
+              <div className="col-span-2 row-start-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 sm:contents">
+                <QuantityStepper
+                  menuItemId={line.menuItemId}
+                  name={line.name}
+                  quantity={line.quantity}
+                />
+                <span className="font-semibold whitespace-nowrap text-copper sm:text-right">
+                  {formatPrice(line.price * line.quantity)}
+                </span>
+              </div>
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="size-11"
+                className="col-start-2 row-start-1 size-11 sm:col-start-4"
                 aria-label={`Убрать «${line.name}» из корзины`}
                 onClick={() => setQuantity(line.menuItemId, 0)}
               >
@@ -88,7 +92,7 @@ export function CartPanel() {
             </li>
           ))}
         </ul>
-        <div className="flex items-center justify-between gap-4 text-lg font-semibold">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 text-lg font-semibold">
           <span>Итого</span>
           <span className="text-copper">{formatPrice(total)}</span>
         </div>

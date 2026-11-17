@@ -12,14 +12,17 @@ export function VisitSection() {
   return (
     <section aria-labelledby="visit-title" className="relative">
       <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-8 px-4 py-24 md:items-center md:py-40 md:text-center">
-        <ModelSlot model="icedLatte" className="h-72 w-56 md:h-96 md:w-72" />
+        <ModelSlot
+          model="icedLatte"
+          className="h-72 w-56 max-w-full md:h-96 md:w-72"
+        />
         <p className="text-xs tracking-[0.3em] text-copper uppercase sm:text-sm">
           {visit.eyebrow}
         </p>
         <h2
           id="visit-title"
           data-split
-          className="font-heading text-[clamp(3rem,10vw,8rem)] leading-[0.95]"
+          className="font-heading text-[clamp(2.25rem,10vw,8rem)] leading-[0.95] min-[360px]:text-[clamp(3rem,10vw,8rem)]"
         >
           {visit.title}
         </h2>

@@ -34,7 +34,7 @@ export function HeroSection() {
         <h1
           id="hero-title"
           data-hero-title
-          className="hero-hidden max-w-[11ch] font-heading text-[clamp(3rem,13vw,7.5rem)] leading-[0.95] tracking-tight"
+          className="hero-hidden max-w-[11ch] font-heading text-[clamp(2.5rem,13vw,7.5rem)] leading-[0.95] tracking-tight min-[360px]:text-[clamp(3rem,13vw,7.5rem)]"
         >
           {hero.title.before}{" "}
           <em className="text-copper italic">{hero.title.accent}</em>{" "}
@@ -52,7 +52,7 @@ export function HeroSection() {
               href={hero.primaryCta.href}
               className={cn(
                 buttonVariants({ size: "lg" }),
-                "min-h-12 rounded-full bg-copper px-8 text-base text-charcoal hover:bg-copper/85",
+                "min-h-12 rounded-full bg-copper px-6 text-base text-charcoal hover:bg-copper/85 min-[360px]:px-8",
               )}
             >
               {hero.primaryCta.label}
@@ -63,7 +63,7 @@ export function HeroSection() {
               href={hero.secondaryCta.href}
               className={cn(
                 buttonVariants({ size: "lg", variant: "outline" }),
-                "min-h-12 rounded-full border-cream/30 bg-transparent px-8 text-base text-cream hover:bg-cream/10 hover:text-cream",
+                "min-h-12 rounded-full border-cream/30 bg-transparent px-6 text-base text-cream hover:bg-cream/10 hover:text-cream min-[360px]:px-8",
               )}
             >
               {hero.secondaryCta.label}
