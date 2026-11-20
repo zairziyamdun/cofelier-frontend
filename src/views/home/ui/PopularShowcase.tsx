@@ -14,6 +14,7 @@ import { buttonVariants } from "@/shared/ui/button";
 
 import { popular } from "../config/content";
 import {
+  type DrinkImage,
   drinkImage,
   FLOATING_BEANS,
   POPULAR_AUTOPLAY_MS,
@@ -69,7 +70,7 @@ export function PopularShowcase() {
   return <Showcase drinks={drinks} />;
 }
 
-type Drink = MenuItem & { image: string };
+type Drink = MenuItem & { image: DrinkImage };
 
 function Showcase({ drinks }: { drinks: Drink[] }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -228,14 +229,18 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
             {drinks.map((drink, drinkIndex) => (
               <Image
                 key={drink.id}
-                src={drink.image}
+                src={drink.image.src}
                 alt={drinkIndex === index ? drink.name : ""}
                 aria-hidden={drinkIndex !== index}
                 width={468}
                 height={1159}
-                sizes="(min-width: 1024px) 19rem, 46vw"
+                sizes="(min-width: 1024px) 30rem, 70vw"
                 className={cn(
-                  "absolute inset-x-0 bottom-0 h-auto w-full transition-[opacity,translate,scale,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                  "absolute bottom-0 h-auto transition-[opacity,translate,scale,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                  // Чашка эспрессо ниже стакана: крупнее и выше, в центре кадра.
+                  drink.image.wide
+                    ? "bottom-[18%] -left-[45%] w-[190%]"
+                    : "left-0 w-full",
                   drinkIndex === index
                     ? "translate-y-0 scale-100 opacity-100"
                     : "translate-y-10 scale-95 opacity-0 blur-sm",
@@ -284,12 +289,12 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
                     )}
                   >
                     <Image
-                      src={drink.image}
+                      src={drink.image.src}
                       alt=""
                       width={468}
                       height={1159}
                       sizes="96px"
-                      className="h-[88%] w-auto object-contain object-bottom transition-transform duration-500 group-hover/card:scale-110"
+                      className="h-[88%] w-auto max-w-full object-contain object-bottom transition-transform duration-500 group-hover/card:scale-110"
                     />
                     {/* Полоса до смены напитка: видно, что витрина листается сама. */}
                     {selected && autoplay && (
