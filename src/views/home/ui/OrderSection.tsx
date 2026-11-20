@@ -5,8 +5,6 @@ import { buttonVariants } from "@/shared/ui/button";
 
 import { order } from "../config/content";
 
-import { ModelSlot } from "./ModelSlot";
-
 export function OrderSection() {
   return (
     // overflow-x-clip: шаги выезжают справа и до появления торчали бы за край экрана.
@@ -34,10 +32,6 @@ export function OrderSection() {
               {order.cta.label}
             </Link>
           </span>
-          <ModelSlot
-            model="paperCup"
-            className="h-64 w-full max-w-xs md:h-80"
-          />
         </div>
 
         <ol data-order className="relative flex flex-col gap-10">

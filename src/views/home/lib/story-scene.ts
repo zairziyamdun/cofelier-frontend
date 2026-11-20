@@ -26,11 +26,8 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 import { gsap, ScrollTrigger } from "@/shared/lib/gsap";
 
-/**
- * turn — предмет «Пути зерна»: поворачивается, проезжая мимо зрителя;
- * arrive — заказ приезжает издалека, пока листаются шаги.
- */
-type Behavior = "turn" | "arrive";
+/** turn — предмет «Пути зерна»: поворачивается, проезжая мимо зрителя. */
+type Behavior = "turn";
 
 export type StoryModel = {
   url: string;
@@ -52,9 +49,6 @@ type Item = {
   /** Положение на экране вдоль ленты: −1 … 1, ноль — центр. */
   offset: number;
   /** Насколько место модели вошло в экран снизу: 0 … 1. */
-  progress: number;
-  /** progress со сглаживанием: колесо прокручивает рывками по ~100 px. */
-  eased: number;
   visible: boolean;
   requested: boolean;
   loaded: boolean;
@@ -180,8 +174,6 @@ export class StoryScene {
       center: new Vector3(),
       radius: 0,
       offset: 0,
-      progress: 0,
-      eased: 0,
       visible: false,
       requested: false,
       loaded: false,
@@ -414,12 +406,6 @@ export class StoryScene {
       item.offset = horizontal
         ? (vx - vw / 2) / (vw / 2)
         : (vy - vh / 2) / (vh / 2);
-      item.progress = clamp01((vh * 0.95 - vy) / (vh * 0.5));
-      // Впервые показанная модель сразу встаёт в нужное состояние.
-      item.eased =
-        item.visible && item.loaded
-          ? MathUtils.damp(item.eased, item.progress, 8, dt)
-          : item.progress;
 
       const near = box.bottom > -vh && box.top < vh * 2 && box.width > 0;
       if (near && !item.requested) this.load(item);
@@ -474,24 +460,11 @@ export class StoryScene {
     pivot.position.copy(item.center);
     pivot.position.y += Math.sin(t * 0.9) * 0.03 * size * idle;
 
-    if (model.behavior === "turn") {
-      // Предмет поворачивается, проезжая мимо, и крупнее всего в центре.
-      const offset = item.offset * idle;
-      const focus = 1 - 0.2 * Math.min(1, Math.abs(offset));
-      pivot.rotation.set(p.sy * 0.15, yaw + offset * 1.1 + p.sx * 0.25, 0);
-      pivot.scale.setScalar(Math.max(0.001, size * focus * shown));
-    } else {
-      // Заказ едет издалека и докручивается к зрителю «лицом».
-      const arrived = this.animated ? easeOut(item.eased) : 1;
-      pivot.position.z = MathUtils.lerp(-16, 0, arrived);
-      pivot.position.y -= (1 - arrived) * size * 1.2;
-      pivot.rotation.set(
-        p.sy * 0.15,
-        yaw + (1 - arrived) * 5 + Math.sin(t * 0.5) * 0.3 * arrived * idle,
-        (1 - arrived) * 0.35,
-      );
-      pivot.scale.setScalar(Math.max(0.001, size * shown));
-    }
+    // Предмет поворачивается, проезжая мимо, и крупнее всего в центре.
+    const offset = item.offset * idle;
+    const focus = 1 - 0.2 * Math.min(1, Math.abs(offset));
+    pivot.rotation.set(p.sy * 0.15, yaw + offset * 1.1 + p.sx * 0.25, 0);
+    pivot.scale.setScalar(Math.max(0.001, size * focus * shown));
   }
 
   // Потоки зёрен между соседними шагами: виден тот, чьи концы сейчас у
