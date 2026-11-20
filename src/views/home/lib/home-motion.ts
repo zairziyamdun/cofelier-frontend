@@ -31,8 +31,6 @@ export function setupHomeMotion(root: HTMLElement) {
       heroIntro(root);
       heroOutro(root);
       splitHeadings(root);
-      manifesto(root);
-      counters(root);
       journey(root, Boolean(desktop));
       marquee(root);
       reveals(root);
@@ -158,46 +156,6 @@ function splitHeadings(root: HTMLElement) {
           ease: "expo.out",
           scrollTrigger: { trigger: heading, start: "top 88%", once: true },
         }),
-    });
-  }
-}
-
-// Манифест «проявляется» слово за словом в такт прокрутке.
-function manifesto(root: HTMLElement) {
-  const text = root.querySelector<HTMLElement>("[data-manifesto]");
-  if (!text) return;
-
-  SplitText.create(text, {
-    type: "words",
-    autoSplit: true,
-    onSplit: (self) =>
-      gsap.fromTo(
-        self.words,
-        { opacity: 0.14 },
-        {
-          opacity: 1,
-          ease: "none",
-          stagger: 0.1,
-          scrollTrigger: {
-            trigger: text,
-            start: "top 80%",
-            end: "bottom 45%",
-            scrub: true,
-          },
-        },
-      ),
-  });
-}
-
-// Счётчики: в разметке уже итоговое число, анимация идёт от нуля к нему.
-function counters(root: HTMLElement) {
-  for (const counter of all(root, "[data-count]")) {
-    gsap.from(counter, {
-      textContent: 0,
-      snap: { textContent: 1 },
-      duration: 1.8,
-      ease: "power3.out",
-      scrollTrigger: { trigger: counter, start: "top 90%", once: true },
     });
   }
 }

@@ -26,7 +26,6 @@ export const MODELS = {
   },
   cup: { url: "/models/coffee-cup.glb", behavior: "turn", flow: 3, yaw: -0.4 },
   paperCup: { url: "/models/paper-cup.glb", behavior: "arrive", scale: 0.95 },
-  icedLatte: { url: "/models/iced-latte.glb", behavior: "pour", scale: 0.95 },
 } as const satisfies Record<string, StoryModel>;
 
 export type ModelKey = keyof typeof MODELS;

@@ -2,7 +2,6 @@ import { AdvantagesSection } from "./AdvantagesSection";
 import { HeroSection } from "./HeroSection";
 import { HomeMotion } from "./HomeMotion";
 import { JourneySection } from "./JourneySection";
-import { ManifestoSection } from "./ManifestoSection";
 import { OrderSection } from "./OrderSection";
 import { OriginsMarquee } from "./OriginsMarquee";
 import { PopularSection } from "./PopularSection";
@@ -14,7 +13,6 @@ export function HomePage() {
     <HomeMotion>
       <HeroSection />
       <PopularSection />
-      <ManifestoSection />
       <JourneySection />
       <OriginsMarquee />
       <AdvantagesSection />
