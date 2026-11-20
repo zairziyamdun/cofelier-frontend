@@ -107,7 +107,7 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
       <p
         aria-hidden="true"
         data-popular-word
-        className="pointer-events-none absolute top-[6%] left-0 -z-10 font-heading text-[clamp(6rem,19vw,17rem)] leading-none whitespace-nowrap text-cream/[0.05] select-none"
+        className="pointer-events-none absolute top-[30%] left-0 -z-10 font-heading text-[clamp(6rem,19vw,17rem)] leading-none whitespace-nowrap text-cream/[0.05] select-none lg:top-[6%]"
       >
         <span
           key={active.id}
@@ -119,10 +119,10 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
 
       {/* Сетка с областями: на телефоне — название, стакан, выбор, кнопка
           (выбрал и сразу купил, без прокрутки назад); на десктопе — как в макете. */}
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-20 [grid-template-areas:'head'_'cup'_'pick'_'body'] lg:min-h-svh lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)_minmax(0,1fr)] lg:grid-rows-[1fr_auto_auto_1fr] lg:gap-x-8 lg:gap-y-6 lg:py-24 lg:[grid-template-areas:'._cup_.'_'head_cup_aside'_'body_cup_pick'_'._cup_.']">
+      <div className="mx-auto grid max-w-7xl gap-5 px-4 py-10 [grid-template-areas:'head'_'cup'_'pick'_'body'] sm:gap-8 sm:py-16 lg:min-h-svh lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)_minmax(0,1fr)] lg:grid-rows-[1fr_auto_auto_1fr] lg:gap-x-8 lg:gap-y-6 lg:py-24 lg:[grid-template-areas:'._cup_.'_'head_cup_aside'_'body_cup_pick'_'._cup_.']">
         <div
           data-popular-reveal
-          className="flex flex-col gap-4 [grid-area:head] lg:gap-6 lg:self-end"
+          className="flex flex-col items-center gap-2 text-center [grid-area:head] lg:items-start lg:gap-6 lg:self-end lg:text-left"
         >
           <h2
             id="popular-title"
@@ -133,12 +133,12 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
           <div
             key={active.id}
             aria-live="polite"
-            className="flex flex-col gap-2 motion-safe:animate-in motion-safe:duration-700 motion-safe:fade-in motion-safe:slide-in-from-bottom-4 lg:gap-4"
+            className="flex flex-col items-center gap-1 motion-safe:animate-in motion-safe:duration-700 motion-safe:fade-in motion-safe:slide-in-from-bottom-4 lg:items-start lg:gap-4"
           >
-            <p className="font-heading text-[clamp(2.5rem,4.2vw,4.25rem)] leading-[1.02] tracking-tight text-balance break-words">
+            <p className="font-heading text-[clamp(2.25rem,4.2vw,4.25rem)] leading-[1.02] tracking-tight text-balance break-words">
               {active.name}
             </p>
-            <p className="font-heading text-2xl text-cream/80">
+            <p className="font-heading text-xl text-cream/80 lg:text-2xl">
               {active.portion && (
                 <em className="text-copper italic">{active.portion}</em>
               )}
@@ -150,20 +150,20 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
 
         <div
           data-popular-reveal
-          className="flex flex-col gap-6 [grid-area:body] lg:self-start"
+          className="flex flex-col items-center gap-4 pt-1 text-center [grid-area:body] lg:items-start lg:gap-6 lg:self-start lg:pt-0 lg:text-left"
         >
           {active.description && (
             <p
               key={active.id}
-              className="max-w-sm text-base text-cream/70 motion-safe:animate-in motion-safe:duration-700 motion-safe:fade-in"
+              className="max-w-sm text-sm text-cream/70 motion-safe:animate-in motion-safe:duration-700 motion-safe:fade-in sm:text-base"
             >
               {active.description}
             </p>
           )}
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex w-full items-center gap-2 sm:w-auto sm:gap-4">
             <span
               data-popular-magnetic
-              className="inline-block w-full sm:w-auto"
+              className="inline-block min-w-0 flex-1 sm:flex-none"
             >
               <AddToCartButton
                 menuItemId={active.id}
@@ -177,7 +177,7 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
               href={popular.menuCta.href}
               className={cn(
                 buttonVariants({ variant: "ghost", size: "lg" }),
-                "group/link min-h-12 rounded-full px-4 text-base text-cream/80 hover:bg-transparent hover:text-copper",
+                "group/link min-h-12 shrink-0 rounded-full px-4 text-base text-cream/80 hover:bg-transparent hover:text-copper",
               )}
             >
               {popular.menuCta.label}
@@ -192,15 +192,15 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
         {/* Стакан: смена напитка — наплыв, наклон за курсором. */}
         <div
           data-popular-cup-wrap
-          className="relative mx-auto [grid-area:cup] [perspective:1200px] lg:self-center"
+          className="relative mx-auto w-full [grid-area:cup] [perspective:1200px] lg:w-auto lg:self-center"
         >
           <div
             aria-hidden="true"
-            className="absolute top-1/4 left-1/2 -z-10 aspect-square w-[180%] -translate-x-1/2 rounded-full model-spot"
+            className="absolute top-0 left-1/2 -z-10 aspect-square w-[120%] -translate-x-1/2 rounded-full model-spot lg:top-1/4 lg:w-[180%]"
           />
           <div
             data-popular-cup
-            className="relative aspect-[468/1159] w-[min(40vw,12rem)] [transform-style:preserve-3d] lg:w-[min(19rem,30vh)]"
+            className="relative mx-auto h-[clamp(11rem,34svh,20rem)] w-[min(80vw,20rem)] [transform-style:preserve-3d] lg:aspect-[468/1159] lg:h-auto lg:w-[min(19rem,30vh)]"
           >
             {drinks.map((drink, drinkIndex) => (
               <Image
@@ -210,13 +210,13 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
                 aria-hidden={drinkIndex !== index}
                 width={468}
                 height={1159}
-                sizes="(min-width: 1024px) 30rem, 70vw"
+                sizes="(min-width: 1024px) 30rem, 80vw"
                 className={cn(
-                  "absolute bottom-0 h-auto transition-[opacity,translate,scale,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                  // Чашка эспрессо ниже стакана: крупнее и выше, в центре кадра.
+                  "absolute inset-0 size-full object-contain object-bottom transition-[opacity,translate,scale,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] lg:inset-auto lg:bottom-0 lg:h-auto lg:object-fill",
+                  // Десктоп: чашка эспрессо ниже стакана — крупнее и выше, в центре кадра.
                   drink.image.wide
-                    ? "bottom-[18%] -left-[45%] w-[190%]"
-                    : "left-0 w-full",
+                    ? "lg:bottom-[18%] lg:-left-[45%] lg:w-[190%]"
+                    : "lg:left-0 lg:w-full",
                   drinkIndex === index
                     ? "translate-y-0 scale-100 opacity-100"
                     : "translate-y-10 scale-95 opacity-0 blur-sm",
@@ -227,7 +227,7 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
           {/* Тень на «столе» — стакан стоит, а не висит. */}
           <div
             aria-hidden="true"
-            className="absolute inset-x-[8%] -bottom-3 -z-10 h-6 rounded-[50%] bg-charcoal opacity-90 blur-xl"
+            className="absolute inset-x-[25%] -bottom-3 -z-10 h-6 rounded-[50%] bg-charcoal opacity-90 blur-xl lg:inset-x-[8%]"
           />
         </div>
 
@@ -244,11 +244,11 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
 
         <div
           data-popular-reveal
-          className="flex flex-col gap-4 [grid-area:pick] lg:items-end lg:self-start"
+          className="flex flex-col items-center gap-4 [grid-area:pick] lg:items-end lg:self-start"
         >
           <ul
             aria-label={popular.pickLabel}
-            className="grid w-full max-w-sm grid-cols-4 gap-3"
+            className="grid w-full max-w-sm grid-cols-4 gap-2 sm:gap-3"
           >
             {drinks.map((drink, drinkIndex) => {
               const selected = drinkIndex === index;
@@ -260,7 +260,7 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
                     aria-label={drink.name}
                     onClick={() => pick(drinkIndex)}
                     className={cn(
-                      "group/card relative flex aspect-[3/4] w-full cursor-pointer items-end justify-center overflow-hidden rounded-2xl border bg-cream/[0.03] px-2 pt-2 transition-[border-color,background-color,translate,box-shadow,scale] duration-500 hover:-translate-y-1.5 hover:border-copper/60 hover:shadow-[0_20px_40px_-20px] hover:shadow-copper/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper active:scale-95",
+                      "group/card relative flex aspect-square w-full cursor-pointer items-end justify-center overflow-hidden rounded-2xl border bg-cream/[0.03] px-2 pt-2 transition-[border-color,background-color,translate,box-shadow,scale] duration-500 hover:-translate-y-1.5 hover:border-copper/60 hover:shadow-[0_20px_40px_-20px] hover:shadow-copper/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper active:scale-95 lg:aspect-[3/4]",
                       selected
                         ? "border-copper/80 bg-copper/10 shadow-[0_16px_36px_-18px] shadow-copper/60"
                         : "border-cream/10",
@@ -295,7 +295,7 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
                   </button>
                   <p
                     className={cn(
-                      "mt-2 truncate text-center text-xs transition-colors",
+                      "mt-2 truncate text-center text-[0.6875rem] transition-colors sm:text-xs",
                       selected ? "text-cream" : "text-cream/50",
                     )}
                   >
