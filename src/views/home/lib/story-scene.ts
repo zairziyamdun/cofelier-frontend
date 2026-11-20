@@ -26,12 +26,8 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 import { gsap, ScrollTrigger } from "@/shared/lib/gsap";
 
-/**
- * turn — предмет «Пути зерна»: поворачивается, проезжая мимо зрителя;
- * arrive — заказ приезжает издалека, пока листаются шаги;
- * pour — стакан наполняется, в конце падает лёд.
- */
-type Behavior = "turn" | "arrive" | "pour";
+/** turn — предмет «Пути зерна»: поворачивается, проезжая мимо зрителя. */
+type Behavior = "turn";
 
 export type StoryModel = {
   url: string;
@@ -44,9 +40,6 @@ export type StoryModel = {
   flow?: number;
 };
 
-// Часть модели, которую двигаем отдельно (напиток, лёд).
-type Part = { node: Object3D; y: number; scaleY: number; floor: number };
-
 type Item = {
   slot: HTMLElement;
   model: StoryModel;
@@ -56,16 +49,11 @@ type Item = {
   /** Положение на экране вдоль ленты: −1 … 1, ноль — центр. */
   offset: number;
   /** Насколько место модели вошло в экран снизу: 0 … 1. */
-  progress: number;
-  /** progress со сглаживанием: колесо прокручивает рывками по ~100 px. */
-  eased: number;
   visible: boolean;
   requested: boolean;
   loaded: boolean;
   appear: number;
   phase: number;
-  liquid?: Part;
-  ice?: Part;
 };
 
 type Bean = { phase: number; speed: number; jitter: Vector3; spin: Vector3 };
@@ -186,8 +174,6 @@ export class StoryScene {
       center: new Vector3(),
       radius: 0,
       offset: 0,
-      progress: 0,
-      eased: 0,
       visible: false,
       requested: false,
       loaded: false,
@@ -300,14 +286,6 @@ export class StoryScene {
         if (this.disposed) return;
         // Геометрия квантована: без матриц узлов размеры модели не настоящие.
         gltf.scene.updateMatrixWorld(true);
-
-        gltf.scene.traverse((node) => {
-          if (!(node instanceof Mesh)) return;
-          const material = node.material as MeshStandardMaterial;
-          if (material.name === "latte") item.liquid = part(node);
-          if (material.name === "ice") item.ice = part(node);
-          tuneMaterial(node, material);
-        });
 
         const sphere = new Box3()
           .setFromObject(gltf.scene)
@@ -428,12 +406,6 @@ export class StoryScene {
       item.offset = horizontal
         ? (vx - vw / 2) / (vw / 2)
         : (vy - vh / 2) / (vh / 2);
-      item.progress = clamp01((vh * 0.95 - vy) / (vh * 0.5));
-      // Впервые показанная модель сразу встаёт в нужное состояние.
-      item.eased =
-        item.visible && item.loaded
-          ? MathUtils.damp(item.eased, item.progress, 8, dt)
-          : item.progress;
 
       const near = box.bottom > -vh && box.top < vh * 2 && box.width > 0;
       if (near && !item.requested) this.load(item);
@@ -488,36 +460,11 @@ export class StoryScene {
     pivot.position.copy(item.center);
     pivot.position.y += Math.sin(t * 0.9) * 0.03 * size * idle;
 
-    if (model.behavior === "turn") {
-      // Предмет поворачивается, проезжая мимо, и крупнее всего в центре.
-      const offset = item.offset * idle;
-      const focus = 1 - 0.2 * Math.min(1, Math.abs(offset));
-      pivot.rotation.set(p.sy * 0.15, yaw + offset * 1.1 + p.sx * 0.25, 0);
-      pivot.scale.setScalar(Math.max(0.001, size * focus * shown));
-    } else if (model.behavior === "arrive") {
-      // Заказ едет издалека и докручивается к зрителю «лицом».
-      const arrived = this.animated ? easeOut(item.eased) : 1;
-      pivot.position.z = MathUtils.lerp(-16, 0, arrived);
-      pivot.position.y -= (1 - arrived) * size * 1.2;
-      pivot.rotation.set(
-        p.sy * 0.15,
-        yaw + (1 - arrived) * 5 + Math.sin(t * 0.5) * 0.3 * arrived * idle,
-        (1 - arrived) * 0.35,
-      );
-      pivot.scale.setScalar(Math.max(0.001, size * shown));
-    } else {
-      // Напиток поднимается по стакану, под конец сверху падает лёд.
-      const filled = this.animated ? clamp01(item.eased / 0.7) : 1;
-      const dropped = this.animated ? clamp01((item.eased - 0.65) / 0.35) : 1;
-      if (item.liquid) fill(item.liquid, Math.max(0.02, easeOut(filled)));
-      if (item.ice) {
-        const fall = 1 - easeOut(dropped);
-        item.ice.node.position.y = item.ice.y + fall * 1.6;
-        item.ice.node.visible = dropped > 0;
-      }
-      pivot.rotation.set(p.sy * 0.15, yaw + t * 0.3 * idle + p.sx * 0.25, 0);
-      pivot.scale.setScalar(Math.max(0.001, size * shown));
-    }
+    // Предмет поворачивается, проезжая мимо, и крупнее всего в центре.
+    const offset = item.offset * idle;
+    const focus = 1 - 0.2 * Math.min(1, Math.abs(offset));
+    pivot.rotation.set(p.sy * 0.15, yaw + offset * 1.1 + p.sx * 0.25, 0);
+    pivot.scale.setScalar(Math.max(0.001, size * focus * shown));
   }
 
   // Потоки зёрен между соседними шагами: виден тот, чьи концы сейчас у
@@ -582,40 +529,6 @@ export class StoryScene {
       }
     }
     stream.instanceMatrix.needsUpdate = true;
-  }
-}
-
-function part(node: Object3D): Part {
-  const box = new Box3().setFromObject(node);
-  const floor = node.parent
-    ? node.parent.worldToLocal(new Vector3(0, box.min.y, 0)).y
-    : box.min.y;
-  return { node, y: node.position.y, scaleY: node.scale.y, floor };
-}
-
-// Сжатие по высоте от дна: дно остаётся на месте, верх опускается.
-function fill(liquid: Part, amount: number) {
-  liquid.node.scale.y = liquid.scaleY * amount;
-  liquid.node.position.y = liquid.y * amount + liquid.floor * (1 - amount);
-}
-
-// Стекло и лёд в файле заданы только именем материала и прозрачностью:
-// настоящее преломление слишком дорого, блики окружения дают тот же образ.
-function tuneMaterial(node: Mesh, material: MeshStandardMaterial) {
-  if (material.name === "glass") {
-    material.transparent = true;
-    material.opacity = 0.22;
-    material.roughness = 0.03;
-    material.envMapIntensity = 3;
-    material.depthWrite = false;
-    node.renderOrder = 2;
-  } else if (material.name === "ice") {
-    material.transparent = true;
-    material.opacity = 0.6;
-    material.roughness = 0.08;
-    material.envMapIntensity = 2;
-    material.depthWrite = false;
-    node.renderOrder = 1;
   }
 }
 

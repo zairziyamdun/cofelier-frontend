@@ -6,16 +6,10 @@ import { buttonVariants } from "@/shared/ui/button";
 
 import { visit } from "../config/content";
 
-import { ModelSlot } from "./ModelSlot";
-
 export function VisitSection() {
   return (
     <section aria-labelledby="visit-title" className="relative">
       <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-8 px-4 py-24 md:items-center md:py-40 md:text-center">
-        <ModelSlot
-          model="icedLatte"
-          className="h-72 w-56 max-w-full md:h-96 md:w-72"
-        />
         <p className="text-xs tracking-[0.3em] text-copper uppercase sm:text-sm">
           {visit.eyebrow}
         </p>

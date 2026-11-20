@@ -278,6 +278,16 @@
   }
 }
 
+/* Полоса на активной карточке витрины: время до смены напитка. */
+@keyframes popular-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 /* Бегущая полоска в подсказке «Листайте». */
 @keyframes scroll-cue {
   0% {
