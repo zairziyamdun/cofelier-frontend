@@ -37,7 +37,7 @@ export function setupHomeMotion(root: HTMLElement) {
       marquee(root);
       reveals(root);
       orderLine(root);
-      return finePointer ? magnetic(root) : undefined;
+      return finePointer ? magnetic(root, "[data-magnetic]") : undefined;
     },
   );
 
@@ -381,9 +381,10 @@ function orderLine(root: HTMLElement) {
   }
 }
 
-// «Магнитные» кнопки тянутся к курсору — только для мыши.
-function magnetic(root: HTMLElement) {
-  const cleanups = all(root, "[data-magnetic]").map((element) => {
+// «Магнитные» кнопки тянутся к курсору — только для мыши. Селектор свой у
+// каждого вызова: витрина подгружается позже и цепляет свои кнопки сама.
+export function magnetic(root: HTMLElement, selector: string) {
+  const cleanups = all(root, selector).map((element) => {
     const toX = gsap.quickTo(element, "x", {
       duration: 0.6,
       ease: "power3.out",

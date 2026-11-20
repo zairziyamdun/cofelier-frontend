@@ -7,7 +7,11 @@ import {
 
 import { http, unwrap } from "@/shared/api";
 
-import type { ManagedMenuCategory, MenuCategory } from "../model/types";
+import type {
+  ManagedMenuCategory,
+  MenuCategory,
+  MenuItem,
+} from "../model/types";
 
 // Фабрика ключей: литералы queryKey в компонентах не пишем (FE-DATA-1).
 // Мутации меню инвалидируют menuKeys.all — обновляются и сайт, и панель.
@@ -15,6 +19,7 @@ export const menuKeys = {
   all: ["menu"] as const,
   public: () => [...menuKeys.all, "public"] as const,
   manage: () => [...menuKeys.all, "manage"] as const,
+  popular: (limit: number) => [...menuKeys.all, "popular", limit] as const,
 };
 
 async function fetchPublicMenu(): Promise<MenuCategory[]> {
@@ -32,6 +37,26 @@ export function publicMenuQueryOptions() {
 // Ошибка загрузки уходит в ближайший error.tsx, загрузка — в <Suspense>.
 export function usePublicMenu() {
   return useSuspenseQuery(publicMenuQueryOptions());
+}
+
+async function fetchPopularMenu(limit: number): Promise<MenuItem[]> {
+  return unwrap(
+    await http.GET("/api/menu/popular", { params: { query: { limit } } }),
+  );
+}
+
+// Самые заказываемые позиции (без стоп-листа) — витрина главной.
+export function popularMenuQueryOptions(limit: number) {
+  return queryOptions({
+    queryKey: menuKeys.popular(limit),
+    queryFn: () => fetchPopularMenu(limit),
+  });
+}
+
+// Без Suspense: витрина — не главное на странице, её ошибка не должна
+// ронять всю главную в error.tsx.
+export function usePopularMenu(limit: number) {
+  return useQuery(popularMenuQueryOptions(limit));
 }
 
 async function fetchManagedMenu(): Promise<ManagedMenuCategory[]> {

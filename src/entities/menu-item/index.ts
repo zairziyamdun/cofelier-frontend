@@ -1,9 +1,11 @@
 export {
   managedMenuQueryOptions,
   menuKeys,
+  popularMenuQueryOptions,
   publicMenuQueryOptions,
   useInvalidateMenu,
   useManagedMenu,
+  usePopularMenu,
   usePublicMenu,
 } from "./api/menu.queries";
 export type {

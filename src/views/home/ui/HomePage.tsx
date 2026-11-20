@@ -5,6 +5,7 @@ import { JourneySection } from "./JourneySection";
 import { ManifestoSection } from "./ManifestoSection";
 import { OrderSection } from "./OrderSection";
 import { OriginsMarquee } from "./OriginsMarquee";
+import { PopularSection } from "./PopularSection";
 import { VisitSection } from "./VisitSection";
 
 // Секции — серверные компоненты; анимации подключает HomeMotion.
@@ -12,6 +13,7 @@ export function HomePage() {
   return (
     <HomeMotion>
       <HeroSection />
+      <PopularSection />
       <ManifestoSection />
       <JourneySection />
       <OriginsMarquee />

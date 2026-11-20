@@ -36,6 +36,42 @@
         "tags": ["menu"]
       }
     },
+    "/api/menu/popular": {
+      "get": {
+        "operationId": "MenuController_getPopular",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Сколько позиций вернуть",
+            "schema": {
+              "minimum": 1,
+              "maximum": 12,
+              "default": 4,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MenuItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Самые заказываемые позиции: без архива и стоп-листа; без заказов — по порядку меню",
+        "tags": ["menu"]
+      }
+    },
     "/api/menu/manage": {
       "get": {
         "operationId": "MenuAdminController_getManagedMenu",
@@ -1202,8 +1238,7 @@
             "type": "string",
             "example": "temporary-pass-2026",
             "minLength": 8,
-            "maxLength": 128,
-            "description": "Временный пароль — админ передаёт его сотруднику сам. От 8 до 128 символов, хотя бы одна буква и одна цифра"
+            "description": "Временный пароль — админ передаёт его сотруднику сам"
           },
           "role": {
             "allOf": [
@@ -1284,10 +1319,8 @@
           },
           "password": {
             "type": "string",
-            "example": "coffee-time-42",
-            "minLength": 8,
-            "maxLength": 128,
-            "description": "От 8 до 128 символов, хотя бы одна буква и одна цифра"
+            "example": "correct-horse-battery",
+            "minLength": 8
           }
         },
         "required": ["name", "email", "password"]
