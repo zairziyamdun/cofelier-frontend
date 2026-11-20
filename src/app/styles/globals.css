@@ -278,13 +278,6 @@
   }
 }
 
-/* Зёрна витрины «Любимое гостей» парят вокруг стакана. */
-@keyframes bean-float {
-  50% {
-    transform: translate3d(0, -14px, 0) rotate(8deg);
-  }
-}
-
 /* Полоса на активной карточке витрины: время до смены напитка. */
 @keyframes popular-progress {
   from {

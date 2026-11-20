@@ -34,9 +34,3 @@ export function drinkImage(name: string): DrinkImage | null {
   if (!key) return null;
   return { src: `/images/home/drink-${key}.webp`, wide: WIDE_DRINKS.has(key) };
 }
-
-export const FLOATING_BEANS = [
-  "/images/home/bean-1.webp",
-  "/images/home/bean-2.webp",
-  "/images/home/bean-3.webp",
-] as const;

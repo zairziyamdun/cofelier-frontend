@@ -16,7 +16,6 @@ import { popular } from "../config/content";
 import {
   type DrinkImage,
   drinkImage,
-  FLOATING_BEANS,
   POPULAR_AUTOPLAY_MS,
   POPULAR_FETCH_LIMIT,
   POPULAR_SHOWN,
@@ -24,37 +23,6 @@ import {
 import { magnetic } from "../lib/home-motion";
 
 import { PopularSkeleton } from "./PopularSkeleton";
-
-// Зёрна вокруг стакана: depth — насколько сильно зерно отвечает на
-// прокрутку и курсор; размытые «ближе к камере» и двигаются сильнее.
-const BEANS = [
-  {
-    src: 0,
-    depth: 1.6,
-    className: "left-[3%] top-[10%] w-14 sm:w-20 sm:blur-[2px]",
-  },
-  { src: 1, depth: 0.6, className: "left-[34%] top-[16%] hidden w-8 lg:block" },
-  {
-    src: 2,
-    depth: 0.8,
-    className: "right-[33%] top-[12%] hidden w-10 lg:block",
-  },
-  {
-    src: 0,
-    depth: 1.3,
-    className: "right-[4%] top-[4%] w-12 sm:w-16 sm:blur-[1px]",
-  },
-  {
-    src: 1,
-    depth: 2,
-    className: "bottom-[4%] left-[8%] hidden w-24 blur-[3px] sm:block",
-  },
-  {
-    src: 2,
-    depth: 1.1,
-    className: "bottom-[14%] right-[6%] w-10 sm:blur-[1px]",
-  },
-] as const;
 
 export function PopularShowcase() {
   const { data, isPending, isError } = usePopularMenu(POPULAR_FETCH_LIMIT);
@@ -148,25 +116,6 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
           {active.name} · {active.name} · {active.name}
         </span>
       </p>
-
-      {BEANS.map((bean, beanIndex) => (
-        <div
-          key={beanIndex}
-          aria-hidden="true"
-          data-bean-depth={bean.depth}
-          className={cn("pointer-events-none absolute -z-10", bean.className)}
-        >
-          <Image
-            src={FLOATING_BEANS[bean.src]}
-            alt=""
-            width={240}
-            height={240}
-            sizes="96px"
-            className="h-auto w-full motion-safe:animate-[bean-float_7s_ease-in-out_infinite]"
-            style={{ animationDelay: `${beanIndex * -1.3}s` }}
-          />
-        </div>
-      ))}
 
       {/* Сетка с областями: на телефоне — название, стакан, выбор, кнопка
           (выбрал и сразу купил, без прокрутки назад); на десктопе — как в макете. */}
@@ -376,10 +325,6 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
 function setupShowcaseMotion(root: HTMLElement, finePointer: boolean) {
   const cup = root.querySelector<HTMLElement>("[data-popular-cup]");
   const word = root.querySelector<HTMLElement>("[data-popular-word]");
-  const beans = gsap.utils.toArray<HTMLElement>(
-    root.querySelectorAll("[data-bean-depth]"),
-  );
-  const depth = (bean: HTMLElement) => Number(bean.dataset.beanDepth);
 
   gsap.from(root.querySelectorAll("[data-popular-reveal]"), {
     autoAlpha: 0,
@@ -400,7 +345,7 @@ function setupShowcaseMotion(root: HTMLElement, finePointer: boolean) {
     });
   }
 
-  // Вывеска на фоне и зёрна едут с разной скоростью — глубина студии.
+  // Вывеска на фоне медленно едет вбок — глубина студии.
   const scroll = {
     trigger: root,
     start: "top bottom",
@@ -414,17 +359,10 @@ function setupShowcaseMotion(root: HTMLElement, finePointer: boolean) {
       { xPercent: -28, ease: "none", scrollTrigger: scroll },
     );
   }
-  for (const bean of beans) {
-    gsap.fromTo(
-      bean,
-      { y: 90 * depth(bean) },
-      { y: -90 * depth(bean), ease: "none", scrollTrigger: scroll },
-    );
-  }
 
   if (!finePointer || !cup) return;
 
-  // Наклон стакана и сдвиг зёрен за курсором — только для мыши.
+  // Наклон стакана за курсором — только для мыши.
   const tiltY = gsap.quickTo(cup, "rotationY", {
     duration: 0.8,
     ease: "power3.out",
@@ -433,22 +371,16 @@ function setupShowcaseMotion(root: HTMLElement, finePointer: boolean) {
     duration: 0.8,
     ease: "power3.out",
   });
-  const beanMoves = beans.map((bean) => ({
-    bean,
-    x: gsap.quickTo(bean, "x", { duration: 1.2, ease: "power3.out" }),
-  }));
   const onMove = (event: PointerEvent) => {
     const rect = root.getBoundingClientRect();
     const dx = (event.clientX - rect.left) / rect.width - 0.5;
     const dy = (event.clientY - rect.top) / rect.height - 0.5;
     tiltY(dx * 14);
     tiltX(-dy * 8);
-    for (const { bean, x } of beanMoves) x(-dx * 40 * depth(bean));
   };
   const onLeave = () => {
     tiltY(0);
     tiltX(0);
-    for (const { x } of beanMoves) x(0);
   };
   root.addEventListener("pointermove", onMove);
   root.addEventListener("pointerleave", onLeave);
