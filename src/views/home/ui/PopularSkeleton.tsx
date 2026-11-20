@@ -23,7 +23,7 @@ export function PopularSkeleton() {
         <div className="h-12 w-3/5 animate-pulse rounded-xl bg-cream/5" />
         <div className="h-12 w-40 animate-pulse rounded-full bg-cream/5" />
       </div>
-      <div className="mx-auto h-[clamp(24rem,60vh,38rem)] w-[min(68vw,20rem)] animate-pulse rounded-[3rem] bg-cream/5" />
+      <div className="mx-auto h-[clamp(20rem,60vh,38rem)] w-[min(40vw,12rem)] animate-pulse rounded-[3rem] bg-cream/5 lg:w-[min(19rem,30vh)]" />
       <div className="flex flex-col gap-6 lg:items-end">
         <div className="h-10 w-3/4 animate-pulse rounded-xl bg-cream/5" />
         <div className="grid w-full max-w-sm grid-cols-4 gap-3">
