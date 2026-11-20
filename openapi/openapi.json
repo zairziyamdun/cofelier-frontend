@@ -1084,6 +1084,15 @@
             "format": "date-time",
             "nullable": true,
             "description": "До какого момента позиция — «Новинка»; null — не новинка"
+          },
+          "popularOverride": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "«Популярно» вручную: true / false; null — авто по заказам"
+          },
+          "autoPopular": {
+            "type": "boolean",
+            "description": "Была бы позиция «Популярной» по заказам — подсказка для режима «Авто»"
           }
         },
         "required": [
@@ -1098,7 +1107,9 @@
           "categoryId",
           "inStopList",
           "manualBadges",
-          "newUntil"
+          "newUntil",
+          "popularOverride",
+          "autoPopular"
         ]
       },
       "ManagedMenuCategoryDto": {
@@ -1163,6 +1174,11 @@
             "format": "date-time",
             "nullable": true,
             "description": "До какого момента позиция — «Новинка»; null — не новинка. Не передано при создании — 14 дней"
+          },
+          "popularOverride": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "«Популярно» вручную: true — всегда, false — никогда, null — авто по заказам"
           }
         },
         "required": ["categoryId", "name", "price"]
@@ -1205,6 +1221,11 @@
             "format": "date-time",
             "nullable": true,
             "description": "До какого момента позиция — «Новинка»; null — не новинка. Не передано при создании — 14 дней"
+          },
+          "popularOverride": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "«Популярно» вручную: true — всегда, false — никогда, null — авто по заказам"
           }
         }
       },

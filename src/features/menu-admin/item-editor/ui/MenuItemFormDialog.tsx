@@ -23,6 +23,11 @@ import {
   newUntilInputValue,
   todayInputValue,
 } from "../lib/new-until";
+import {
+  POPULAR_MODES,
+  popularModeOf,
+  popularOverrideOf,
+} from "../lib/popular-mode";
 
 type MenuItemFormDialogProps = {
   open: boolean;
@@ -43,6 +48,7 @@ function readBody(form: HTMLFormElement): MenuItemBody {
     price: Number(data.get("price")),
     manualBadges: data.getAll("manualBadges") as ManualMenuBadge[],
     newUntil: newUntilFromInput(String(data.get("newUntil") ?? "")),
+    popularOverride: popularOverrideOf(String(data.get("popular") ?? "auto")),
   };
 }
 
@@ -153,8 +159,34 @@ export function MenuItemFormDialog({
               </label>
             ))}
           </div>
+        </fieldset>
+        <fieldset className="flex flex-col gap-2">
+          <legend className="mb-2 text-sm font-medium">Популярно</legend>
+          <div className="grid grid-cols-3 gap-1 rounded-full border border-border p-1">
+            {POPULAR_MODES.map((mode) => (
+              <label
+                key={mode.value}
+                className="flex min-h-11 cursor-pointer items-center justify-center rounded-full px-4 has-checked:bg-copper has-checked:text-charcoal has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
+              >
+                <input
+                  type="radio"
+                  name="popular"
+                  value={mode.value}
+                  defaultChecked={
+                    popularModeOf(item?.popularOverride) === mode.value
+                  }
+                  className="sr-only"
+                />
+                {mode.label}
+              </label>
+            ))}
+          </div>
           <p className="text-sm text-muted-foreground">
-            «Популярно» ставится само — по заказам за последние 30 дней.
+            «Авто» — по заказам за последние 30 дней
+            {item &&
+              (item.autoPopular
+                ? ": сейчас позиция в популярных."
+                : ": сейчас позиция не в популярных.")}
           </p>
         </fieldset>
         <Field
