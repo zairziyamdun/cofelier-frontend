@@ -12,6 +12,7 @@ import {
   DeleteMenuItemDialog,
   MenuItemFormDialog,
 } from "@/features/menu-admin/item-editor";
+import { ItemModifierGroups } from "@/features/menu-admin/item-modifiers";
 import { PhotoManager } from "@/features/menu-admin/item-photos";
 import { Button } from "@/shared/ui/button";
 
@@ -115,10 +116,11 @@ export function MenuEditor() {
             <PhotoManager item={formItem} />
           ) : (
             <p className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">
-              Фото можно добавить сразу после сохранения позиции.
+              Фото и добавки можно выбрать сразу после сохранения позиции.
             </p>
           )
         }
+        modifiers={formItem ? <ItemModifierGroups item={formItem} /> : null}
       />
       <DeleteMenuItemDialog
         item={dialog?.kind === "item-delete" ? dialog.item : null}
