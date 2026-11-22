@@ -936,6 +936,11 @@
       }
     },
     "schemas": {
+      "MenuItemBadge": {
+        "type": "string",
+        "enum": ["popular", "new", "seasonal", "signature", "decaf"],
+        "description": "Метки для карточки по порядку важности: popular и new считает сервер, остальные ставит менеджер"
+      },
       "MenuItemDto": {
         "type": "object",
         "properties": {
@@ -969,6 +974,14 @@
           "isAvailable": {
             "type": "boolean",
             "description": "false — позиция в стоп-листе: видна, но заказать нельзя"
+          },
+          "badges": {
+            "type": "array",
+            "description": "Метки для карточки по порядку важности: popular и new считает сервер, остальные ставит менеджер",
+            "example": ["popular", "seasonal"],
+            "items": {
+              "$ref": "#/components/schemas/MenuItemBadge"
+            }
           }
         },
         "required": [
@@ -978,7 +991,8 @@
           "portion",
           "price",
           "imageUrl",
-          "isAvailable"
+          "isAvailable",
+          "badges"
         ]
       },
       "MenuCategoryDto": {
@@ -1004,6 +1018,10 @@
           }
         },
         "required": ["id", "slug", "name", "items"]
+      },
+      "MenuBadge": {
+        "type": "string",
+        "enum": ["seasonal", "signature", "decaf"]
       },
       "ManagedMenuItemDto": {
         "type": "object",
@@ -1039,6 +1057,14 @@
             "type": "boolean",
             "description": "false — позиция в стоп-листе: видна, но заказать нельзя"
           },
+          "badges": {
+            "type": "array",
+            "description": "Метки для карточки по порядку важности: popular и new считает сервер, остальные ставит менеджер",
+            "example": ["popular", "seasonal"],
+            "items": {
+              "$ref": "#/components/schemas/MenuItemBadge"
+            }
+          },
           "categoryId": {
             "type": "number",
             "example": 1
@@ -1046,6 +1072,27 @@
           "inStopList": {
             "type": "boolean",
             "description": "true — позиция в стоп-листе"
+          },
+          "manualBadges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MenuBadge"
+            }
+          },
+          "newUntil": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "До какого момента позиция — «Новинка»; null — не новинка"
+          },
+          "popularOverride": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "«Популярно» вручную: true / false; null — авто по заказам"
+          },
+          "autoPopular": {
+            "type": "boolean",
+            "description": "Была бы позиция «Популярной» по заказам — подсказка для режима «Авто»"
           }
         },
         "required": [
@@ -1056,8 +1103,13 @@
           "price",
           "imageUrl",
           "isAvailable",
+          "badges",
           "categoryId",
-          "inStopList"
+          "inStopList",
+          "manualBadges",
+          "newUntil",
+          "popularOverride",
+          "autoPopular"
         ]
       },
       "ManagedMenuCategoryDto": {
@@ -1109,6 +1161,24 @@
             "type": "number",
             "description": "Цена в целых тенге",
             "example": 1500
+          },
+          "manualBadges": {
+            "type": "array",
+            "description": "Ручные метки; не передано при создании — без меток",
+            "items": {
+              "$ref": "#/components/schemas/MenuBadge"
+            }
+          },
+          "newUntil": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "До какого момента позиция — «Новинка»; null — не новинка. Не передано при создании — 14 дней"
+          },
+          "popularOverride": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "«Популярно» вручную: true — всегда, false — никогда, null — авто по заказам"
           }
         },
         "required": ["categoryId", "name", "price"]
@@ -1138,6 +1208,24 @@
             "type": "number",
             "description": "Цена в целых тенге",
             "example": 1500
+          },
+          "manualBadges": {
+            "type": "array",
+            "description": "Ручные метки; не передано при создании — без меток",
+            "items": {
+              "$ref": "#/components/schemas/MenuBadge"
+            }
+          },
+          "newUntil": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "До какого момента позиция — «Новинка»; null — не новинка. Не передано при создании — 14 дней"
+          },
+          "popularOverride": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "«Популярно» вручную: true — всегда, false — никогда, null — авто по заказам"
           }
         }
       },
@@ -1238,7 +1326,8 @@
             "type": "string",
             "example": "temporary-pass-2026",
             "minLength": 8,
-            "description": "Временный пароль — админ передаёт его сотруднику сам"
+            "maxLength": 128,
+            "description": "Временный пароль — админ передаёт его сотруднику сам. От 8 до 128 символов, хотя бы одна буква и одна цифра"
           },
           "role": {
             "allOf": [
@@ -1319,8 +1408,10 @@
           },
           "password": {
             "type": "string",
-            "example": "correct-horse-battery",
-            "minLength": 8
+            "example": "coffee-time-42",
+            "minLength": 8,
+            "maxLength": 128,
+            "description": "От 8 до 128 символов, хотя бы одна буква и одна цифра"
           }
         },
         "required": ["name", "email", "password"]

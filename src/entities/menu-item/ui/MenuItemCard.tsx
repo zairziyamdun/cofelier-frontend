@@ -5,6 +5,8 @@ import { cn } from "@/shared/lib/utils";
 
 import type { MenuItem } from "../model/types";
 
+import { MenuItemBadges } from "./MenuItemBadges";
+
 // action — слот под кнопку из слоя выше (например, «В корзину»):
 // сущность меню не знает о корзине.
 export function MenuItemCard({
@@ -21,6 +23,7 @@ export function MenuItemCard({
         !item.isAvailable && "opacity-60",
       )}
     >
+      <MenuItemBadges badges={item.badges} />
       <div className="flex items-baseline justify-between gap-4">
         <h3 className="font-heading text-xl">{item.name}</h3>
         <span className="shrink-0 font-semibold text-copper">

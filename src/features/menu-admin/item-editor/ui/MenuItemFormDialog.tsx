@@ -2,9 +2,12 @@
 
 import type { FormEvent } from "react";
 
-import type {
-  ManagedMenuCategory,
-  ManagedMenuItem,
+import {
+  BADGE_LABELS,
+  MANUAL_BADGES,
+  type ManagedMenuCategory,
+  type ManagedMenuItem,
+  type ManualMenuBadge,
 } from "@/entities/menu-item";
 import { Button } from "@/shared/ui/button";
 import { Dialog } from "@/shared/ui/dialog";
@@ -15,6 +18,16 @@ import {
   useUpdateMenuItem,
   type MenuItemBody,
 } from "../api/use-menu-item-mutations";
+import {
+  newUntilFromInput,
+  newUntilInputValue,
+  todayInputValue,
+} from "../lib/new-until";
+import {
+  POPULAR_MODES,
+  popularModeOf,
+  popularOverrideOf,
+} from "../lib/popular-mode";
 
 type MenuItemFormDialogProps = {
   open: boolean;
@@ -33,6 +46,9 @@ function readBody(form: HTMLFormElement): MenuItemBody {
     portion: String(data.get("portion") ?? ""),
     description: String(data.get("description") ?? ""),
     price: Number(data.get("price")),
+    manualBadges: data.getAll("manualBadges") as ManualMenuBadge[],
+    newUntil: newUntilFromInput(String(data.get("newUntil") ?? "")),
+    popularOverride: popularOverrideOf(String(data.get("popular") ?? "auto")),
   };
 }
 
@@ -121,6 +137,69 @@ export function MenuItemFormDialog({
             name="description"
             maxLength={300}
             defaultValue={item?.description ?? ""}
+          />
+        </Field>
+
+        <fieldset className="flex flex-col gap-2">
+          <legend className="mb-2 text-sm font-medium">Метки</legend>
+          <div className="flex flex-wrap gap-2">
+            {MANUAL_BADGES.map((badge) => (
+              <label
+                key={badge}
+                className="flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-border px-4 has-checked:border-copper has-checked:bg-copper/15"
+              >
+                <input
+                  type="checkbox"
+                  name="manualBadges"
+                  value={badge}
+                  defaultChecked={item?.manualBadges.includes(badge)}
+                  className="size-4 accent-copper"
+                />
+                {BADGE_LABELS[badge]}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset className="flex flex-col gap-2">
+          <legend className="mb-2 text-sm font-medium">Популярно</legend>
+          <div className="grid grid-cols-3 gap-1 rounded-full border border-border p-1">
+            {POPULAR_MODES.map((mode) => (
+              <label
+                key={mode.value}
+                className="flex min-h-11 cursor-pointer items-center justify-center rounded-full px-4 has-checked:bg-copper has-checked:text-charcoal has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
+              >
+                <input
+                  type="radio"
+                  name="popular"
+                  value={mode.value}
+                  defaultChecked={
+                    popularModeOf(item?.popularOverride) === mode.value
+                  }
+                  className="sr-only"
+                />
+                {mode.label}
+              </label>
+            ))}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            «Авто» — по заказам за последние 30 дней
+            {item &&
+              (item.autoPopular
+                ? ": сейчас позиция в популярных."
+                : ": сейчас позиция не в популярных.")}
+          </p>
+        </fieldset>
+        <Field
+          label="Новинка до"
+          htmlFor="item-new-until"
+          hint="Пусто — без метки «Новинка». Новой позиции ставим две недели."
+        >
+          <Input
+            id="item-new-until"
+            name="newUntil"
+            type="date"
+            min={todayInputValue()}
+            defaultValue={newUntilInputValue(item ? item.newUntil : undefined)}
           />
         </Field>
 

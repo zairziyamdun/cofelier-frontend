@@ -5,7 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { type MenuItem, usePopularMenu } from "@/entities/menu-item";
+import {
+  type MenuItem,
+  MenuItemBadges,
+  usePopularMenu,
+} from "@/entities/menu-item";
 import { AddToCartButton } from "@/features/cart";
 import { formatPrice } from "@/shared/lib/format-price";
 import { gsap, MOTION_OK, ScrollTrigger, useGSAP } from "@/shared/lib/gsap";
@@ -145,6 +149,12 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
               {active.portion && " · "}
               {formatPrice(active.price)}
             </p>
+            {/* «Популярно» здесь лишнее — вся витрина про популярное. */}
+            <MenuItemBadges
+              tone="dark"
+              badges={active.badges.filter((badge) => badge !== "popular")}
+              className="justify-center pt-1 lg:justify-start"
+            />
           </div>
         </div>
 

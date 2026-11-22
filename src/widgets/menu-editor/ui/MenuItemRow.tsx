@@ -1,6 +1,6 @@
 import { Pencil, Trash2 } from "lucide-react";
 
-import type { ManagedMenuItem } from "@/entities/menu-item";
+import { type ManagedMenuItem, MenuItemBadges } from "@/entities/menu-item";
 import { formatPrice } from "@/shared/lib/format-price";
 import { StopListSwitch } from "@/features/menu-admin/stop-list";
 import { cn } from "@/shared/lib/utils";
@@ -19,6 +19,7 @@ export function MenuItemRow({
     <li className="flex flex-col gap-2 p-4 md:grid md:grid-cols-[1fr_auto_auto_auto] md:items-center md:gap-6">
       <div className={cn("min-w-0", item.inStopList && "opacity-60")}>
         <p className="font-medium">{item.name}</p>
+        <MenuItemBadges badges={item.badges} className="my-1" />
         <p className="truncate text-sm text-muted-foreground">
           {[item.portion, item.description].filter(Boolean).join(" · ") ||
             "Без описания"}
