@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import {
   BADGE_LABELS,
+  type MenuItem,
   MenuItemCard,
   type MenuItemBadge,
   usePublicMenu,
@@ -16,7 +17,12 @@ import { filterByBadge, presentBadges } from "../lib/filter-by-badge";
 const chipClass =
   "flex min-h-11 items-center rounded-full border px-4 whitespace-nowrap transition-colors";
 
-export function MenuList() {
+// onOpenItem — касание по фото или названию: страница открывает шторку товара.
+export function MenuList({
+  onOpenItem,
+}: {
+  onOpenItem?: (item: MenuItem) => void;
+}) {
   const { data: allCategories } = usePublicMenu();
   const [badge, setBadge] = useState<MenuItemBadge | null>(null);
   const badges = useMemo(() => presentBadges(allCategories), [allCategories]);
@@ -109,6 +115,7 @@ export function MenuList() {
               <MenuItemCard
                 key={item.id}
                 item={item}
+                onOpen={onOpenItem ? () => onOpenItem(item) : undefined}
                 action={
                   <AddToCartButton
                     menuItemId={item.id}

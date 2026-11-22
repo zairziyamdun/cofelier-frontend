@@ -13,6 +13,8 @@ type AddToCartButtonProps = {
   name: string;
   price: number;
   className?: string;
+  // Подпись кнопки; по умолчанию — «В корзину».
+  label?: string;
 };
 
 // Пока позиции нет в корзине — кнопка, потом — счётчик количества.
@@ -21,6 +23,7 @@ export function AddToCartButton({
   name,
   price,
   className,
+  label = "В корзину",
 }: AddToCartButtonProps) {
   const cart = useCart();
   const line = cart?.find((item) => item.menuItemId === menuItemId);
@@ -45,7 +48,8 @@ export function AddToCartButton({
       disabled={cart === null}
       onClick={() => addToCart({ menuItemId, name, price })}
     >
-      <Plus aria-hidden="true" />В корзину
+      <Plus aria-hidden="true" />
+      {label}
     </Button>
   );
 }
