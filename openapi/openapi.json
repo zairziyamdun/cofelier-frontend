@@ -1360,6 +1360,37 @@
         "tags": ["orders"]
       }
     },
+    "/api/orders/my/repeat": {
+      "get": {
+        "operationId": "OrdersController_repeatLast",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepeatOrderDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Последний заказ для «Повторить»: строки и можно ли собрать их по текущему меню",
+        "tags": ["orders"]
+      }
+    },
     "/api/orders/queue": {
       "get": {
         "operationId": "OrdersController_findQueue",
@@ -2568,6 +2599,83 @@
           "createdAt",
           "items"
         ]
+      },
+      "RepeatModifierDto": {
+        "type": "object",
+        "properties": {
+          "optionId": {
+            "type": "number",
+            "example": 21
+          },
+          "quantity": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": ["optionId", "quantity"]
+      },
+      "RepeatLineDto": {
+        "type": "object",
+        "properties": {
+          "menuItemId": {
+            "type": "number",
+            "example": 3
+          },
+          "name": {
+            "type": "string",
+            "example": "Капучино",
+            "description": "Название на момент заказа"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 2
+          },
+          "modifiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RepeatModifierDto"
+            }
+          },
+          "available": {
+            "type": "boolean",
+            "description": "false — так по меню больше не собрать (нет позиции, добавка закончилась…)"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Почему нельзя повторить — для гостя"
+          }
+        },
+        "required": [
+          "menuItemId",
+          "name",
+          "quantity",
+          "modifiers",
+          "available",
+          "reason"
+        ]
+      },
+      "RepeatOrderDto": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "number",
+            "nullable": true,
+            "description": "null — заказов ещё не было"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RepeatLineDto"
+            }
+          }
+        },
+        "required": ["orderId", "createdAt", "lines"]
       },
       "StaffOrderDto": {
         "type": "object",

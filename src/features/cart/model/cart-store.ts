@@ -54,7 +54,7 @@ function isModifier(value: unknown): value is CartModifier {
 }
 
 // Строки из прошлых версий сайта (без добавок и ключа) не теряем — дополняем.
-function toCartLine(value: unknown): CartLine | null {
+export function toCartLine(value: unknown): CartLine | null {
   if (typeof value !== "object" || value === null) return null;
   const line = value as Record<string, unknown>;
   if (

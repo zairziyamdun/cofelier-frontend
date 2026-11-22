@@ -5,9 +5,9 @@ import { Suspense } from "react";
 import { popularMenuQueryOptions } from "@/entities/menu-item";
 import { getQueryClient } from "@/shared/api";
 
-import { POPULAR_FETCH_LIMIT } from "../config/drinks";
+import { POPULAR_FETCH_LIMIT } from "../config/popular";
 
-import { PopularShowcase } from "./PopularShowcase";
+import { PopularRail } from "./PopularRail";
 import { PopularSkeleton } from "./PopularSkeleton";
 
 // Витрина «Любимое гостей»: самые заказываемые напитки из API.
@@ -34,7 +34,7 @@ async function PopularData() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <PopularShowcase />
+      <PopularRail />
     </HydrationBoundary>
   );
 }

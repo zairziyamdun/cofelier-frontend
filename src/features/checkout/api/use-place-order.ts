@@ -11,9 +11,12 @@ export function usePlaceOrder() {
     mutationFn: async (body: CreateOrderBody) =>
       unwrap(await http.POST("/api/orders", { body })),
     // Новый заказ сразу наверху «Моих заказов», без лишнего запроса.
-    onSuccess: (order) =>
+    onSuccess: (order) => {
       queryClient.setQueryData<Order[]>(orderKeys.my(), (orders) =>
         orders ? [order, ...orders] : orders,
-      ),
+      );
+      // «Повторить» теперь про этот заказ.
+      void queryClient.invalidateQueries({ queryKey: orderKeys.repeat() });
+    },
   });
 }

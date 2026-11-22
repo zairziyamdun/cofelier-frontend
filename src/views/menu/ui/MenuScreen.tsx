@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useRef } from "react";
 
 import { type MenuItem, usePublicMenu } from "@/entities/menu-item";
+import { RepeatLastOrder } from "@/features/cart";
 import { MenuList } from "@/widgets/menu-list";
 import { ProductSheet } from "@/widgets/product-sheet";
 
@@ -49,9 +50,10 @@ export function MenuScreen() {
   };
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
+      <RepeatLastOrder categories={categories} />
       <MenuList onOpenItem={open} />
       <ProductSheet item={openItem} onClose={close} />
-    </>
+    </div>
   );
 }
