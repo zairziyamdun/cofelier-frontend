@@ -87,13 +87,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Тесты
 
-Пока не настроены (этап 7). Чистая логика слайса кладётся в `lib/`, чтобы
-потом покрыть её тестами без браузера.
+Vitest (`pnpm test`, в CI тоже): `src/**/*.test.ts` рядом с кодом, только чистая
+логика слайсов (`lib/`, `model/`) — без браузера и React. Новая логика корзины,
+цен, правил выбора — с тестом.
 
 ## CI и PR
 
 - GitHub Actions (`.github/workflows/ci.yml`) на каждый PR в `main`: lint,
-  lint:fsd, format:check, typecheck, build. Слияние — только после зелёного CI.
+  lint:fsd, format:check, typecheck, test, build. Слияние — только после зелёного CI.
 - Перед PR — скилл `/pre-pr-review`: diff от merge-base, ревью по
   [docs/PR-POLICY.md](docs/PR-POLICY.md), проверки, отчёт `READY` /
   `READY WITH WARNINGS` / `BLOCKED` / `INCOMPLETE`. С `BLOCKED` PR не создаём.
@@ -123,6 +124,7 @@ pnpm lint:fsd      # steiger ./src — правила FSD
 pnpm typecheck     # next typegen && tsc --noEmit (типы LayoutProps/PageProps — из typegen)
 pnpm format        # prettier --write (код; *.md и .claude не трогает)
 pnpm format:check  # как в CI
+pnpm test          # vitest: чистая логика слайсов
 pnpm sync:api      # схема из ../cofelier-backend → openapi/openapi.json → типы
 pnpm gen:api       # openapi/openapi.json → src/shared/api/schema.gen.ts (и postinstall)
 pnpm dlx shadcn@latest add <component>   # новый компонент в src/shared/ui
