@@ -3,6 +3,7 @@
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -50,6 +51,7 @@ type Drink = MenuItem & { image: DrinkImage };
 
 function Showcase({ drinks }: { drinks: Drink[] }) {
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
   const [index, setIndex] = useState(0);
   // Автосмена идёт, пока гость не коснулся витрины; на телефоне её нет (см. полосу).
   const [autoplay, setAutoplay] = useState(true);
@@ -147,7 +149,7 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
                 <em className="text-copper italic">{active.portion}</em>
               )}
               {active.portion && " · "}
-              {formatPrice(active.price)}
+              {formatPrice(active.defaultPrice ?? active.price)}
             </p>
             {/* «Популярно» здесь лишнее — вся витрина про популярное. */}
             <MenuItemBadges
@@ -176,9 +178,9 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
               className="inline-block min-w-0 flex-1 sm:flex-none"
             >
               <AddToCartButton
-                menuItemId={active.id}
-                name={active.name}
-                price={active.price}
+                item={active}
+                // Выбор обязателен — ведём в шторку товара в меню.
+                onChoose={() => router.push(`/menu?item=${active.slug}`)}
                 // dark:* — у outline-кнопки в тёмной теме свой фон, его надо перебить.
                 className="min-h-12 w-full rounded-full border-copper bg-copper px-8 text-base text-charcoal hover:bg-copper/85 hover:text-charcoal sm:w-auto dark:border-copper dark:bg-copper dark:hover:bg-copper/85"
               />

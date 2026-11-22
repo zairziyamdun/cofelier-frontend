@@ -118,9 +118,8 @@ export function MenuList({
                 onOpen={onOpenItem ? () => onOpenItem(item) : undefined}
                 action={
                   <AddToCartButton
-                    menuItemId={item.id}
-                    name={item.name}
-                    price={item.price}
+                    item={item}
+                    onChoose={onOpenItem ? () => onOpenItem(item) : undefined}
                   />
                 }
               />
