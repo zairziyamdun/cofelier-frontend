@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent } from "react";
+import type { FormEvent, ReactNode } from "react";
 
 import {
   BADGE_LABELS,
@@ -36,6 +36,11 @@ type MenuItemFormDialogProps = {
   // Нет позиции — создание; есть — правка.
   item?: ManagedMenuItem;
   defaultCategoryId?: number;
+  // Слот под блок фото из слоя выше (фичи друг друга не импортируют).
+  photos?: ReactNode;
+  // Создали позицию — окно не закрывается, а переходит в правку: сразу можно
+  // добавить фото. Без обработчика — закрывается, как раньше.
+  onCreated?: (item: ManagedMenuItem) => void;
 };
 
 function readBody(form: HTMLFormElement): MenuItemBody {
@@ -58,6 +63,8 @@ export function MenuItemFormDialog({
   categories,
   item,
   defaultCategoryId,
+  photos,
+  onCreated,
 }: MenuItemFormDialogProps) {
   const createItem = useCreateMenuItem();
   const updateItem = useUpdateMenuItem();
@@ -66,9 +73,11 @@ export function MenuItemFormDialog({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const body = readBody(event.currentTarget);
-    const options = { onSuccess: onClose };
-    if (item) updateItem.mutate({ id: item.id, body }, options);
-    else createItem.mutate(body, options);
+    if (item) updateItem.mutate({ id: item.id, body }, { onSuccess: onClose });
+    else
+      createItem.mutate(body, {
+        onSuccess: (created) => (onCreated ? onCreated(created) : onClose()),
+      });
   }
 
   function handleClose() {
@@ -84,6 +93,7 @@ export function MenuItemFormDialog({
       title={item ? "Изменить позицию" : "Новая позиция"}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {photos}
         <Field label="Категория" htmlFor="item-category">
           <Select
             id="item-category"
