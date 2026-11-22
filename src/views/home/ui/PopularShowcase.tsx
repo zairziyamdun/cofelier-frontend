@@ -34,7 +34,7 @@ export function PopularShowcase() {
     () =>
       (data ?? [])
         .flatMap((item) => {
-          const image = drinkImage(item.name);
+          const image = drinkImage(item);
           return image ? [{ ...item, image }] : [];
         })
         .slice(0, POPULAR_SHOWN),
@@ -215,14 +215,17 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
             {drinks.map((drink, drinkIndex) => (
               <Image
                 key={drink.id}
-                src={drink.image.src}
+                // Файл нужного размера уже в хранилище — оптимизация Next не нужна.
+                unoptimized
+                src={drink.image.photo.urls.medium}
                 alt={drinkIndex === index ? drink.name : ""}
                 aria-hidden={drinkIndex !== index}
-                width={468}
-                height={1159}
-                sizes="(min-width: 1024px) 30rem, 80vw"
+                width={drink.image.photo.width}
+                height={drink.image.photo.height}
                 className={cn(
                   "absolute inset-0 size-full object-contain object-bottom transition-[opacity,translate,scale,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] lg:inset-auto lg:bottom-0 lg:h-auto lg:object-fill",
+                  // Обычное фото (с фоном) — со скруглением, как карточка, а не вырезанный напиток.
+                  !drink.image.cutout && "rounded-2xl",
                   // Десктоп: чашка эспрессо ниже стакана — крупнее и выше, в центре кадра.
                   drink.image.wide
                     ? "lg:bottom-[18%] lg:-left-[45%] lg:w-[190%]"
@@ -277,12 +280,15 @@ function Showcase({ drinks }: { drinks: Drink[] }) {
                     )}
                   >
                     <Image
-                      src={drink.image.src}
+                      unoptimized
+                      src={drink.image.photo.urls.small}
                       alt=""
-                      width={468}
-                      height={1159}
-                      sizes="96px"
-                      className="h-[88%] w-auto max-w-full object-contain object-bottom transition-transform duration-500 group-hover/card:scale-110"
+                      width={drink.image.photo.width}
+                      height={drink.image.photo.height}
+                      className={cn(
+                        "h-[88%] w-auto max-w-full object-contain object-bottom transition-transform duration-500 group-hover/card:scale-110",
+                        !drink.image.cutout && "rounded-lg",
+                      )}
                     />
                     {/* Полоса до смены напитка — только для мыши: на телефоне
                         автосмена подменила бы напиток прямо под пальцем. */}
