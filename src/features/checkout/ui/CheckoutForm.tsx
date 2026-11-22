@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 
 import { isStaff, useCurrentUser } from "@/entities/user";
 import type { Order } from "@/entities/order";
+import { ApiError, type ApiSchemas } from "@/shared/api";
 import { formatPrice } from "@/shared/lib/format-price";
 import { cn } from "@/shared/lib/utils";
 import { Button, buttonVariants } from "@/shared/ui/button";
@@ -14,12 +15,19 @@ import { usePlaceOrder } from "../api/use-place-order";
 import { pickupSlots } from "../lib/pickup-slots";
 
 type CheckoutFormProps = {
-  lines: { menuItemId: number; quantity: number }[];
+  lines: ApiSchemas["OrderLineDto"][];
   total: number;
   onPlaced: (order: Order) => void;
+  // Сервер ответил 409: цены или наличие в меню изменились — обновить корзину.
+  onStale?: () => void;
 };
 
-export function CheckoutForm({ lines, total, onPlaced }: CheckoutFormProps) {
+export function CheckoutForm({
+  lines,
+  total,
+  onPlaced,
+  onStale,
+}: CheckoutFormProps) {
   const {
     data: user,
     isPending,
@@ -95,6 +103,8 @@ export function CheckoutForm({ lines, total, onPlaced }: CheckoutFormProps) {
         items: lines,
         comment: String(form.get("comment") ?? ""),
         pickupAt: pickupAt || null,
+        // Сумма, которую видит гость: разошлась с сервером — заказ не пройдёт молча.
+        expectedTotal: total,
       },
       { onSuccess: onPlaced },
     );
@@ -120,13 +130,28 @@ export function CheckoutForm({ lines, total, onPlaced }: CheckoutFormProps) {
           id="checkout-comment"
           name="comment"
           maxLength={300}
-          placeholder="Без сахара, на овсяном молоке…"
+          placeholder="Например: погорячее, без крышки"
         />
       </Field>
       <p className="text-sm text-muted-foreground">
         Оплата при получении — наличными или картой.
       </p>
       <FormError error={placeOrder.error} />
+      {onStale &&
+        placeOrder.error instanceof ApiError &&
+        placeOrder.error.status === 409 && (
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11"
+            onClick={() => {
+              placeOrder.reset();
+              onStale();
+            }}
+          >
+            Обновить корзину по меню
+          </Button>
+        )}
       <Button
         type="submit"
         size="lg"
