@@ -1,38 +1,63 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Plus, SlidersHorizontal } from "lucide-react";
 
+import {
+  defaultSelection,
+  type MenuItem,
+  selectedModifiers,
+} from "@/entities/menu-item";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 
-import { addToCart, useCart } from "../model/cart-store";
+import { addToCart, lineKey, useCart } from "../model/cart-store";
 import { QuantityStepper } from "./QuantityStepper";
 
 type AddToCartButtonProps = {
-  menuItemId: number;
-  name: string;
-  price: number;
+  item: MenuItem;
+  // Обязательный выбор без варианта по умолчанию: «+» не может решить за гостя —
+  // кнопка «Выбрать» открывает шторку товара.
+  onChoose?: () => void;
   className?: string;
   // Подпись кнопки; по умолчанию — «В корзину».
   label?: string;
 };
 
-// Пока позиции нет в корзине — кнопка, потом — счётчик количества.
+// «+» в меню: товар с добавками по умолчанию одним касанием. Пока такой строки
+// нет в корзине — кнопка, потом — счётчик именно этой строки.
 export function AddToCartButton({
-  menuItemId,
-  name,
-  price,
+  item,
+  onChoose,
   className,
   label = "В корзину",
 }: AddToCartButtonProps) {
   const cart = useCart();
-  const line = cart?.find((item) => item.menuItemId === menuItemId);
+
+  if (item.defaultPrice === null) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        className={cn("min-h-11 px-4", className)}
+        aria-label={`Выбрать добавки для «${item.name}»`}
+        disabled={!onChoose}
+        onClick={onChoose}
+      >
+        <SlidersHorizontal aria-hidden="true" />
+        Выбрать
+      </Button>
+    );
+  }
+
+  const modifiers = selectedModifiers(item, defaultSelection(item));
+  const key = lineKey(item.id, modifiers);
+  const line = cart?.find((candidate) => candidate.key === key);
 
   if (line) {
     return (
       <QuantityStepper
-        menuItemId={menuItemId}
-        name={name}
+        lineKey={key}
+        name={item.name}
         quantity={line.quantity}
       />
     );
@@ -43,10 +68,17 @@ export function AddToCartButton({
       type="button"
       variant="outline"
       className={cn("min-h-11 px-4", className)}
-      aria-label={`Добавить «${name}» в корзину`}
+      aria-label={`Добавить «${item.name}» в корзину`}
       // До загрузки корзины кнопка видна, но неактивна: нет мигания на гидратации.
       disabled={cart === null}
-      onClick={() => addToCart({ menuItemId, name, price })}
+      onClick={() =>
+        addToCart({
+          menuItemId: item.id,
+          name: item.name,
+          price: item.defaultPrice ?? item.price,
+          modifiers,
+        })
+      }
     >
       <Plus aria-hidden="true" />
       {label}
