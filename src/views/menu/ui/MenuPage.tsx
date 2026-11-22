@@ -4,7 +4,9 @@ import { Suspense } from "react";
 
 import { publicMenuQueryOptions } from "@/entities/menu-item";
 import { getQueryClient } from "@/shared/api";
-import { MenuList, MenuListSkeleton } from "@/widgets/menu-list";
+import { MenuListSkeleton } from "@/widgets/menu-list";
+
+import { MenuScreen } from "./MenuScreen";
 
 export function MenuPage() {
   return (
@@ -31,7 +33,7 @@ async function MenuData() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <MenuList />
+      <MenuScreen />
     </HydrationBoundary>
   );
 }

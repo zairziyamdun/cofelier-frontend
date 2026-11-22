@@ -471,6 +471,175 @@
         "tags": ["menu-admin"]
       }
     },
+    "/api/menu/items/{id}/photos": {
+      "post": {
+        "operationId": "MenuPhotosController_upload",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadMenuPhotosDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMenuItemDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не картинка, формат, размер или больше 6 фото"
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Позиция или фото не найдены"
+          },
+          "413": {
+            "description": "Файл больше 10 МБ"
+          },
+          "503": {
+            "description": "Хранилище не настроено"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Добавить фото позиции (в конец списка)",
+        "tags": ["menu-admin"]
+      }
+    },
+    "/api/menu/items/{id}/photos/order": {
+      "put": {
+        "operationId": "MenuPhotosController_reorder",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderMenuPhotosDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMenuItemDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не все фото или повторы"
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Позиция или фото не найдены"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Новый порядок фото; первое — обложка",
+        "tags": ["menu-admin"]
+      }
+    },
+    "/api/menu/items/{id}/photos/{photoId}": {
+      "delete": {
+        "operationId": "MenuPhotosController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "photoId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMenuItemDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Позиция или фото не найдены"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Удалить фото позиции",
+        "tags": ["menu-admin"]
+      }
+    },
     "/api/users/staff": {
       "get": {
         "operationId": "UsersController_listStaff",
@@ -936,6 +1105,51 @@
       }
     },
     "schemas": {
+      "MenuPhotoUrlsDto": {
+        "type": "object",
+        "properties": {
+          "small": {
+            "type": "string",
+            "description": "Ширина 320 px — строка меню"
+          },
+          "medium": {
+            "type": "string",
+            "description": "Ширина 800 px — шторка товара"
+          },
+          "large": {
+            "type": "string",
+            "description": "Ширина 1600 px — большой экран"
+          }
+        },
+        "required": ["small", "medium", "large"]
+      },
+      "MenuPhotoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 12
+          },
+          "width": {
+            "type": "number",
+            "description": "Ширина оригинала, px",
+            "example": 1200
+          },
+          "height": {
+            "type": "number",
+            "description": "Высота оригинала, px",
+            "example": 1500
+          },
+          "hasAlpha": {
+            "type": "boolean",
+            "description": "Прозрачный фон: можно показывать без рамки"
+          },
+          "urls": {
+            "$ref": "#/components/schemas/MenuPhotoUrlsDto"
+          }
+        },
+        "required": ["id", "width", "height", "hasAlpha", "urls"]
+      },
       "MenuItemBadge": {
         "type": "string",
         "enum": ["popular", "new", "seasonal", "signature", "decaf"],
@@ -947,6 +1161,11 @@
           "id": {
             "type": "number",
             "example": 3
+          },
+          "slug": {
+            "type": "string",
+            "description": "Для ссылки на товар: /menu?item=kapuchino",
+            "example": "kapuchino"
           },
           "name": {
             "type": "string",
@@ -967,9 +1186,12 @@
             "description": "Цена в целых тенге",
             "example": 1500
           },
-          "imageUrl": {
-            "type": "string",
-            "nullable": true
+          "photos": {
+            "description": "Фото по порядку, первое — обложка; пусто — фото нет",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MenuPhotoDto"
+            }
           },
           "isAvailable": {
             "type": "boolean",
@@ -986,11 +1208,12 @@
         },
         "required": [
           "id",
+          "slug",
           "name",
           "description",
           "portion",
           "price",
-          "imageUrl",
+          "photos",
           "isAvailable",
           "badges"
         ]
@@ -1030,6 +1253,11 @@
             "type": "number",
             "example": 3
           },
+          "slug": {
+            "type": "string",
+            "description": "Для ссылки на товар: /menu?item=kapuchino",
+            "example": "kapuchino"
+          },
           "name": {
             "type": "string",
             "example": "Капучино"
@@ -1049,9 +1277,12 @@
             "description": "Цена в целых тенге",
             "example": 1500
           },
-          "imageUrl": {
-            "type": "string",
-            "nullable": true
+          "photos": {
+            "description": "Фото по порядку, первое — обложка; пусто — фото нет",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MenuPhotoDto"
+            }
           },
           "isAvailable": {
             "type": "boolean",
@@ -1097,11 +1328,12 @@
         },
         "required": [
           "id",
+          "slug",
           "name",
           "description",
           "portion",
           "price",
-          "imageUrl",
+          "photos",
           "isAvailable",
           "badges",
           "categoryId",
@@ -1272,6 +1504,34 @@
           }
         },
         "required": ["name"]
+      },
+      "UploadMenuPhotosDto": {
+        "type": "object",
+        "properties": {
+          "photos": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            },
+            "description": "JPEG, PNG, WebP или AVIF, до 10 МБ каждое, до 6 у позиции"
+          }
+        },
+        "required": ["photos"]
+      },
+      "ReorderMenuPhotosDto": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "description": "id всех фото позиции в новом порядке; первое — обложка",
+            "example": [12, 10, 11],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": ["ids"]
       },
       "Role": {
         "type": "string",

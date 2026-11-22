@@ -23,12 +23,13 @@ proxy.ts              без cookie на /admin и /account — сразу на 
 src/
   app/                слой FSD app: providers/, layouts/ (Site, Admin), styles/ (есть)
   views/              home, menu, about, contacts, auth, account, cart, admin (есть)
-  widgets/            header, footer, menu-list, admin-sidebar,
+  widgets/            header, footer, menu-list, product-sheet, admin-sidebar,
                       menu-editor, cart-panel, my-orders, order-queue,
                       staff-manager                                (есть)
                       gallery                                      (план, этап 7)
   features/           auth/login, auth/register, auth/logout       (есть)
-                      menu-admin/item-editor, menu-admin/stop-list,
+                      menu-admin/item-editor, menu-admin/item-photos,
+                      menu-admin/stop-list,
                       menu-admin/category-editor,
                       cart, checkout, order-status,
                       staff/create, staff/access                   (есть)
@@ -252,6 +253,25 @@ src/entities/menu-item/
 - **Иконки** — `lucide-react`.
 - **Картинки** — `next/image` с `alt`; фото со стоков — в `public/` или
   внешним доменом из `next.config.ts`.
+- **Фото меню** — `MenuPhotoImage` (`entities/menu-item`): заполняет рамку
+  родителя (`relative` + пропорция, обычно 4:5), `srcset` из трёх файлов
+  хранилища (320/800/1600) по `sizes`; прозрачный фон — целиком на `bg-muted`,
+  обычное фото — по рамке; нет фото — знак бренда. Это `<img>`, а не
+  `next/image`: файлы уже нужных размеров, оптимизация Vercel не нужна
+  (`policy-exception: FE-UI-3` в коде).
+- **Карусель** — `Carousel` из `shared/ui/carousel.tsx`: нативная прокрутка с
+  привязкой к кадру, свайп; стрелки — только для мыши (`pointer-fine`), точки
+  на тёмной подложке. Один кадр — без стрелок и точек.
+- **Шторка товара** — `widgets/product-sheet` на `Dialog variant="sheet"`
+  (снизу на телефоне, окном с `sm:`): карусель фото, описание, липкая кнопка
+  «Добавить · цена». Страница меню (`views/menu/ui/MenuScreen.tsx`) держит
+  открытый товар в адресе `?item=slug`: ссылкой можно поделиться, «назад»
+  закрывает шторку.
+- **Фото в админке** — `features/menu-admin/item-photos` (`PhotoManager`) в
+  слоте `photos` формы позиции: камера или галерея, сжатие в браузере
+  (`compress-image.ts`, до 2400 px, WebP), загрузка по одному файлу, порядок
+  стрелками, первое — обложка, до 6 фото. Новая позиция после сохранения
+  остаётся в окне правки — сразу можно добавить фото.
 - **Логотип** (есть): знак векторизован из логотипа бренда —
   `shared/brand/mark-paths.ts` (буква C с чашкой и пар отдельными путями).
   `LogoMark` в `shared/ui/logo.tsx` красит букву с чашкой в `currentColor`
@@ -317,9 +337,9 @@ src/entities/menu-item/
   `GET /api/menu/popular` (самые заказываемые, без стоп-листа) грузится на
   сервере под `<Suspense>`, клиентская `PopularShowcase` — через `useQuery`
   без Suspense, чтобы сбой API показывал ссылку на меню, а не ронял главную.
-  Стаканы — рендеры Blender в `public/images/home/drink-*.webp`, привязка к
-  названию позиции — `config/drinks.ts`; позиция без рендера на витрину не
-  попадает. Свои анимации (появление, сдвиг вывески, наклон стакана за
+  Картинка напитка — обложка позиции (первое фото из админки, `config/drinks.ts`);
+  позиция без фото на витрину не попадает. Фото с прозрачным фоном «стоит»
+  как раньше, обычное — со скруглением. Свои анимации (появление, сдвиг вывески, наклон стакана за
   курсором, магнитная кнопка) витрина вешает сама: она приходит позже, чем
   отрабатывает `HomeMotion`.
 - Фон — одна «студия» на всю страницу: `HomeMotion` вешает на `<main>` класс

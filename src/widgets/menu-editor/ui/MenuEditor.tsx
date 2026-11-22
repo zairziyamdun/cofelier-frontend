@@ -12,6 +12,7 @@ import {
   DeleteMenuItemDialog,
   MenuItemFormDialog,
 } from "@/features/menu-admin/item-editor";
+import { PhotoManager } from "@/features/menu-admin/item-photos";
 import { Button } from "@/shared/ui/button";
 
 import type { EditorActions, EditorDialog } from "../model/editor-state";
@@ -51,6 +52,14 @@ export function MenuEditor() {
 
   const categories = menu.data;
   const categoryIds = categories.map((category) => category.id);
+  // Позиция в окне — свежая из кеша: после загрузки фото меню перечитывается.
+  const formItemId = dialog?.kind === "item-form" ? dialog.item?.id : undefined;
+  const formItem =
+    formItemId === undefined
+      ? undefined
+      : categories
+          .flatMap((category) => category.items)
+          .find((item) => item.id === formItemId);
 
   return (
     <div className="flex flex-col gap-6">
@@ -99,6 +108,16 @@ export function MenuEditor() {
         item={dialog?.kind === "item-form" ? dialog.item : undefined}
         defaultCategoryId={
           dialog?.kind === "item-form" ? dialog.categoryId : undefined
+        }
+        onCreated={(item) => setDialog({ kind: "item-form", item })}
+        photos={
+          formItem ? (
+            <PhotoManager item={formItem} />
+          ) : (
+            <p className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">
+              Фото можно добавить сразу после сохранения позиции.
+            </p>
+          )
         }
       />
       <DeleteMenuItemDialog
