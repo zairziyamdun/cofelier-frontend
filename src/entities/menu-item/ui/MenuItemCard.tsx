@@ -69,7 +69,8 @@ export function MenuItemCard({
       <div className="col-start-2 mt-auto flex min-h-11 flex-wrap items-center justify-between gap-2 text-sm sm:px-4 sm:pb-4">
         <span className="flex items-baseline gap-2">
           <span className="font-semibold text-copper">
-            {formatPrice(item.price)}
+            {hasPaidModifiers(item) && "от "}
+            {formatPrice(item.defaultPrice ?? item.price)}
           </span>
           {item.portion && (
             <span className="text-muted-foreground">{item.portion}</span>
@@ -84,5 +85,12 @@ export function MenuItemCard({
         )}
       </div>
     </article>
+  );
+}
+
+// Есть платные добавки — цена «от»: с ними выйдет дороже.
+function hasPaidModifiers(item: MenuItem): boolean {
+  return item.modifierGroups.some((group) =>
+    group.options.some((option) => option.priceDelta > 0),
   );
 }
