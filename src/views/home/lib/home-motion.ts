@@ -341,7 +341,7 @@ function orderLine(root: HTMLElement) {
 
 // «Магнитные» кнопки тянутся к курсору — только для мыши. Селектор свой у
 // каждого вызова: витрина подгружается позже и цепляет свои кнопки сама.
-export function magnetic(root: HTMLElement, selector: string) {
+function magnetic(root: HTMLElement, selector: string) {
   const cleanups = all(root, selector).map((element) => {
     const toX = gsap.quickTo(element, "x", {
       duration: 0.6,
