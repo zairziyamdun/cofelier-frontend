@@ -41,10 +41,7 @@ export function PopularRail() {
           >
             {popular.eyebrow}
           </h2>
-          <p
-            data-split
-            className="font-heading text-[clamp(1.75rem,4vw,3rem)] leading-tight text-cream"
-          >
+          <p className="font-heading text-[clamp(1.75rem,4vw,3rem)] leading-tight text-cream">
             {popular.title}
           </p>
         </div>

@@ -24,9 +24,9 @@ export function PopularSkeleton() {
         {cards.map((card) => (
           <div
             key={card}
-            className="flex w-[min(80vw,20rem)] shrink-0 flex-col gap-3"
+            className="flex w-[min(72vw,16rem)] shrink-0 flex-col gap-3"
           >
-            <div className="aspect-[4/5] animate-pulse rounded-2xl bg-cream/5" />
+            <div className="aspect-square animate-pulse rounded-2xl bg-cream/5" />
             <div className="h-6 w-2/3 animate-pulse rounded-lg bg-cream/5" />
             <div className="h-11 animate-pulse rounded-full bg-cream/5" />
           </div>

@@ -31,7 +31,7 @@ export function PopularCard({
         type="button"
         onClick={onOpen}
         aria-label={`Подробнее: ${item.name}`}
-        className="group relative aspect-[4/5] w-full overflow-hidden"
+        className="group relative aspect-square w-full overflow-hidden"
       >
         <span
           data-popular-photo
@@ -41,7 +41,7 @@ export function PopularCard({
           <MenuPhotoImage
             photo={item.photos[0]}
             alt={item.name}
-            sizes="(min-width: 640px) 20rem, 80vw"
+            sizes="(min-width: 640px) 16rem, 72vw"
           />
         </span>
         <span
@@ -50,7 +50,7 @@ export function PopularCard({
         />
         <span
           aria-hidden="true"
-          className="absolute bottom-1 left-4 font-heading text-6xl leading-none text-outline"
+          className="absolute bottom-1 left-4 font-heading text-5xl leading-none text-outline"
         >
           {String(rank).padStart(2, "0")}
         </span>
