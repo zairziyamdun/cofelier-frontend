@@ -20,6 +20,9 @@ const DRAG_THRESHOLD = 6;
 // Три одинаковых набора карточек подряд; едем по среднему и при выходе
 // за его пределы незаметно сдвигаемся на длину набора — получается бесконечный круг.
 const SETS = 3;
+// Меньше — круг не нужен: одна-три карточки по разу, без копий и автохода.
+// Иначе одна популярная позиция превращалась в ряд одинаковых карточек.
+const MIN_LOOP_ITEMS = 4;
 const FOCUSABLE = "a[href],button,input,select,textarea,[tabindex]";
 
 // Лента листается пальцем, мышью (перетаскивание) и стрелками, а когда её не
@@ -39,21 +42,25 @@ export function PopularTrack({
   const [active, setActive] = useState(0);
   const [visible, setVisible] = useState(false);
 
+  const loop = items.length >= MIN_LOOP_ITEMS;
   // Набор повторяем, если карточек так мало, что он не заполнит экран.
-  const repeat = items.length < 6 ? 2 : 1;
+  const repeat = loop && items.length < 6 ? 2 : 1;
   const setLength = items.length * repeat;
+  const sets = loop ? SETS : 1;
   const slides = useMemo(
     () =>
-      Array.from({ length: SETS * setLength }, (_, index) => {
+      Array.from({ length: sets * setLength }, (_, index) => {
         const inSet = index % setLength;
         return {
           item: items[inSet % items.length],
           // Настоящая только первая копия среднего набора, остальные — для круга.
-          real: Math.floor(index / setLength) === 1 && inSet < items.length,
+          real:
+            !loop ||
+            (Math.floor(index / setLength) === 1 && inSet < items.length),
           key: `${Math.floor(index / setLength)}-${inSet}`,
         };
       }),
-    [items, setLength],
+    [items, setLength, sets, loop],
   );
 
   useEffect(() => {
@@ -67,7 +74,7 @@ export function PopularTrack({
       const cards = track.children;
       const first = cards[0] as HTMLElement | undefined;
       const next = cards[setLength] as HTMLElement | undefined;
-      setWidth = first && next ? next.offsetLeft - first.offsetLeft : 0;
+      setWidth = loop && first && next ? next.offsetLeft - first.offsetLeft : 0;
     };
     // Держим позицию в пределах среднего набора с запасом: сдвиг на набор
     // невидим, потому что карточки там те же. Возвращает величину сдвига.
@@ -155,6 +162,7 @@ export function PopularTrack({
       const dt = Math.min(now - last, 64);
       last = now;
       const auto =
+        loop &&
         motion.matches &&
         inView &&
         !focused &&
@@ -284,7 +292,7 @@ export function PopularTrack({
       window.removeEventListener("pointercancel", onUp);
       observer.disconnect();
     };
-  }, [items.length, setLength]);
+  }, [items.length, setLength, loop]);
 
   const scrollByCard = (direction: -1 | 1) => {
     const track = trackRef.current;
@@ -299,7 +307,7 @@ export function PopularTrack({
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center gap-4">
+      <div className={cn("flex items-center gap-4", !loop && "hidden")}>
         <span
           aria-hidden="true"
           className="relative h-px flex-1 overflow-hidden bg-cream/15"
@@ -357,6 +365,8 @@ export function PopularTrack({
               className={cn(
                 "absolute top-[calc(50%-0.25rem)] hidden size-12 -translate-y-1/2 items-center justify-center rounded-full border border-cream/20 bg-charcoal/80 text-cream shadow-lg backdrop-blur transition-colors hover:border-copper hover:text-copper pointer-fine:flex",
                 side === "left" ? "left-2" : "right-2",
+                // Без круга карточки и так на виду — стрелки не нужны.
+                !loop && "pointer-fine:hidden",
               )}
             >
               <Icon aria-hidden="true" />
