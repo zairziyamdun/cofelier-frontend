@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { CartBar } from "@/features/cart";
 import { Footer } from "@/widgets/footer";
 import { Header } from "@/widgets/header";
 
@@ -9,6 +10,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
     <>
       <Header />
       {children}
+      <CartBar />
       <Footer />
     </>
   );
