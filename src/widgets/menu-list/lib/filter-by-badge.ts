@@ -31,3 +31,27 @@ export function filterByBadge(
     }))
     .filter((category) => category.items.length > 0);
 }
+
+// «Раф» и «раф», «ё» и «е», лишние пробелы — одно и то же.
+export function normalizeSearch(text: string): string {
+  return text.trim().toLowerCase().replaceAll("ё", "е").replace(/\s+/g, " ");
+}
+
+// Поиск по названию и описанию; категории без совпадений пропадают.
+export function searchMenu(
+  categories: MenuCategory[],
+  query: string,
+): MenuCategory[] {
+  const needle = normalizeSearch(query);
+  if (!needle) return categories;
+  return categories
+    .map((category) => ({
+      ...category,
+      items: category.items.filter((item) =>
+        normalizeSearch(`${item.name} ${item.description ?? ""}`).includes(
+          needle,
+        ),
+      ),
+    }))
+    .filter((category) => category.items.length > 0);
+}
