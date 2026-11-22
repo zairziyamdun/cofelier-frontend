@@ -36,8 +36,9 @@ type MenuItemFormDialogProps = {
   // Нет позиции — создание; есть — правка.
   item?: ManagedMenuItem;
   defaultCategoryId?: number;
-  // Слот под блок фото из слоя выше (фичи друг друга не импортируют).
+  // Слоты под фото и добавки из слоя выше (фичи друг друга не импортируют).
   photos?: ReactNode;
+  modifiers?: ReactNode;
   // Создали позицию — окно не закрывается, а переходит в правку: сразу можно
   // добавить фото. Без обработчика — закрывается, как раньше.
   onCreated?: (item: ManagedMenuItem) => void;
@@ -64,6 +65,7 @@ export function MenuItemFormDialog({
   item,
   defaultCategoryId,
   photos,
+  modifiers,
   onCreated,
 }: MenuItemFormDialogProps) {
   const createItem = useCreateMenuItem();
@@ -94,6 +96,7 @@ export function MenuItemFormDialog({
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {photos}
+        {modifiers}
         <Field label="Категория" htmlFor="item-category">
           <Select
             id="item-category"

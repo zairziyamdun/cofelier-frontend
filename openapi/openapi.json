@@ -640,6 +640,369 @@
         "tags": ["menu-admin"]
       }
     },
+    "/api/menu/modifier-groups": {
+      "get": {
+        "operationId": "MenuModifiersController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ManagedModifierGroupDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Все группы добавок с вариантами",
+        "tags": ["menu-admin"]
+      },
+      "post": {
+        "operationId": "MenuModifiersController_createGroup",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateModifierGroupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedModifierGroupDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка в полях или в настройках"
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Новая группа добавок (можно сразу с вариантами)",
+        "tags": ["menu-admin"]
+      }
+    },
+    "/api/menu/modifier-groups/{id}": {
+      "patch": {
+        "operationId": "MenuModifiersController_updateGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateModifierGroupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedModifierGroupDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Группа не найдена"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Правка группы: название, тип, обязательность, лимит",
+        "tags": ["menu-admin"]
+      },
+      "delete": {
+        "operationId": "MenuModifiersController_deleteGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Группа не найдена"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Удалить группу (старые заказы не меняются)",
+        "tags": ["menu-admin"]
+      }
+    },
+    "/api/menu/modifier-groups/{id}/options": {
+      "post": {
+        "operationId": "MenuModifiersController_addOption",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateModifierOptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedModifierGroupDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Группа не найдена"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Новый вариант в группе (в конец)",
+        "tags": ["menu-admin"]
+      }
+    },
+    "/api/menu/modifier-options/{id}": {
+      "patch": {
+        "operationId": "MenuModifiersController_updateOption",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateModifierOptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedModifierGroupDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Вариант не найден"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Правка варианта, в том числе стоп-лист",
+        "tags": ["menu-admin"]
+      },
+      "delete": {
+        "operationId": "MenuModifiersController_deleteOption",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedModifierGroupDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Вариант не найден"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Удалить вариант",
+        "tags": ["menu-admin"]
+      }
+    },
+    "/api/menu/items/{id}/modifier-groups": {
+      "put": {
+        "operationId": "MenuModifiersController_setItemGroups",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetItemModifierGroupsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedMenuItemDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Нужно войти"
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "404": {
+            "description": "Позиция или группа не найдена"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Группы добавок позиции целиком, в порядке показа",
+        "tags": ["menu-admin"]
+      }
+    },
     "/api/users/staff": {
       "get": {
         "operationId": "UsersController_listStaff",
@@ -1150,6 +1513,87 @@
         },
         "required": ["id", "width", "height", "hasAlpha", "urls"]
       },
+      "ModifierGroupKind": {
+        "type": "string",
+        "enum": ["single", "multiple", "quantity"],
+        "description": "single — один вариант, multiple — несколько, quantity — количеством"
+      },
+      "ModifierOptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 21
+          },
+          "name": {
+            "type": "string",
+            "example": "Овсяное"
+          },
+          "priceDelta": {
+            "type": "number",
+            "description": "Надбавка в целых тенге; 0 — бесплатно",
+            "example": 300
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "Выбран сразу"
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "description": "false — закончилось: виден, но выбрать нельзя"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "example": "350 мл"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "priceDelta",
+          "isDefault",
+          "isAvailable",
+          "note"
+        ]
+      },
+      "ModifierGroupDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 2
+          },
+          "name": {
+            "type": "string",
+            "example": "Молоко"
+          },
+          "kind": {
+            "description": "single — один вариант, multiple — несколько, quantity — количеством",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ModifierGroupKind"
+              }
+            ]
+          },
+          "required": {
+            "type": "boolean",
+            "description": "Без выбора в группе товар не добавить"
+          },
+          "maxSelect": {
+            "type": "number",
+            "nullable": true,
+            "description": "multiple — сколько вариантов можно; quantity — сколько штук всего; null — без лимита"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModifierOptionDto"
+            }
+          }
+        },
+        "required": ["id", "name", "kind", "required", "maxSelect", "options"]
+      },
       "MenuItemBadge": {
         "type": "string",
         "enum": ["popular", "new", "seasonal", "signature", "decaf"],
@@ -1197,6 +1641,19 @@
             "type": "boolean",
             "description": "false — позиция в стоп-листе: видна, но заказать нельзя"
           },
+          "modifierGroups": {
+            "description": "Группы добавок в порядке показа; пусто — без добавок",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModifierGroupDto"
+            }
+          },
+          "defaultPrice": {
+            "type": "number",
+            "nullable": true,
+            "description": "Цена с добавками по умолчанию — её кладёт «+» в меню; null — по умолчанию не собрать, нужно выбрать в шторке",
+            "example": 1800
+          },
           "badges": {
             "type": "array",
             "description": "Метки для карточки по порядку важности: popular и new считает сервер, остальные ставит менеджер",
@@ -1215,6 +1672,8 @@
           "price",
           "photos",
           "isAvailable",
+          "modifierGroups",
+          "defaultPrice",
           "badges"
         ]
       },
@@ -1288,6 +1747,19 @@
             "type": "boolean",
             "description": "false — позиция в стоп-листе: видна, но заказать нельзя"
           },
+          "modifierGroups": {
+            "description": "Группы добавок в порядке показа; пусто — без добавок",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModifierGroupDto"
+            }
+          },
+          "defaultPrice": {
+            "type": "number",
+            "nullable": true,
+            "description": "Цена с добавками по умолчанию — её кладёт «+» в меню; null — по умолчанию не собрать, нужно выбрать в шторке",
+            "example": 1800
+          },
           "badges": {
             "type": "array",
             "description": "Метки для карточки по порядку важности: popular и new считает сервер, остальные ставит менеджер",
@@ -1335,6 +1807,8 @@
           "price",
           "photos",
           "isAvailable",
+          "modifierGroups",
+          "defaultPrice",
           "badges",
           "categoryId",
           "inStopList",
@@ -1533,6 +2007,214 @@
         },
         "required": ["ids"]
       },
+      "ManagedModifierOptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 21
+          },
+          "name": {
+            "type": "string",
+            "example": "Овсяное"
+          },
+          "priceDelta": {
+            "type": "number",
+            "description": "Надбавка в целых тенге; 0 — бесплатно",
+            "example": 300
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "Выбран сразу"
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "description": "false — закончилось: виден, но выбрать нельзя"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "example": "350 мл"
+          },
+          "inStopList": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "priceDelta",
+          "isDefault",
+          "isAvailable",
+          "note",
+          "inStopList"
+        ]
+      },
+      "ManagedModifierGroupDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 2
+          },
+          "name": {
+            "type": "string",
+            "example": "Молоко"
+          },
+          "kind": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ModifierGroupKind"
+              }
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "maxSelect": {
+            "type": "number",
+            "nullable": true
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManagedModifierOptionDto"
+            }
+          },
+          "itemIds": {
+            "description": "id позиций, к которым подключена группа",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "required",
+          "maxSelect",
+          "options",
+          "itemIds"
+        ]
+      },
+      "CreateModifierOptionDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Овсяное"
+          },
+          "priceDelta": {
+            "type": "number",
+            "description": "Надбавка в целых тенге",
+            "example": 300
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "example": "350 мл"
+          }
+        },
+        "required": ["name"]
+      },
+      "CreateModifierGroupDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Молоко"
+          },
+          "kind": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ModifierGroupKind"
+              }
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "maxSelect": {
+            "type": "number",
+            "nullable": true
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateModifierOptionDto"
+            }
+          }
+        },
+        "required": ["name", "kind"]
+      },
+      "UpdateModifierGroupDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Молоко"
+          },
+          "kind": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ModifierGroupKind"
+              }
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "maxSelect": {
+            "type": "number",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateModifierOptionDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Овсяное"
+          },
+          "priceDelta": {
+            "type": "number",
+            "description": "Надбавка в целых тенге",
+            "example": 300
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "example": "350 мл"
+          },
+          "inStopList": {
+            "type": "boolean",
+            "description": "true — закончилось"
+          }
+        }
+      },
+      "SetItemModifierGroupsDto": {
+        "type": "object",
+        "properties": {
+          "groupIds": {
+            "description": "id групп в порядке показа; пусто — без добавок",
+            "example": [1, 2],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": ["groupIds"]
+      },
       "Role": {
         "type": "string",
         "enum": ["client", "barista", "manager", "admin"]
@@ -1686,6 +2368,21 @@
         },
         "required": ["token"]
       },
+      "OrderLineModifierDto": {
+        "type": "object",
+        "properties": {
+          "optionId": {
+            "type": "number",
+            "example": 21
+          },
+          "quantity": {
+            "type": "number",
+            "example": 1,
+            "description": "Для групп «количеством»; по умолчанию 1"
+          }
+        },
+        "required": ["optionId"]
+      },
       "OrderLineDto": {
         "type": "object",
         "properties": {
@@ -1698,6 +2395,13 @@
             "example": 2,
             "minimum": 1,
             "maximum": 20
+          },
+          "modifiers": {
+            "description": "Выбранные добавки; не передано — без добавок",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderLineModifierDto"
+            }
           }
         },
         "required": ["menuItemId", "quantity"]
@@ -1721,6 +2425,11 @@
             "format": "date-time",
             "nullable": true,
             "description": "Когда заберёте; не передано — как можно скорее"
+          },
+          "expectedTotal": {
+            "type": "number",
+            "description": "Сумма, которую видел гость. Не совпала с расчётом сервера — 409: цены в меню изменились",
+            "example": 3600
           }
         },
         "required": ["items"]
@@ -1734,6 +2443,39 @@
           "ready",
           "completed",
           "cancelled"
+        ]
+      },
+      "OrderItemModifierDto": {
+        "type": "object",
+        "properties": {
+          "groupName": {
+            "type": "string",
+            "example": "Молоко"
+          },
+          "optionName": {
+            "type": "string",
+            "example": "Овсяное"
+          },
+          "priceDelta": {
+            "type": "number",
+            "example": 300,
+            "description": "Надбавка за штуку на момент заказа"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 1
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "Был вариантом по умолчанию — бариста выделяет только отличия"
+          }
+        },
+        "required": [
+          "groupName",
+          "optionName",
+          "priceDelta",
+          "quantity",
+          "isDefault"
         ]
       },
       "OrderItemDto": {
@@ -1754,15 +2496,28 @@
           },
           "price": {
             "type": "number",
-            "example": 1500,
-            "description": "Цена за штуку на момент заказа"
+            "example": 1800,
+            "description": "Цена за штуку вместе с добавками, на момент заказа"
           },
           "quantity": {
             "type": "number",
             "example": 2
+          },
+          "modifiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemModifierDto"
+            }
           }
         },
-        "required": ["id", "menuItemId", "name", "price", "quantity"]
+        "required": [
+          "id",
+          "menuItemId",
+          "name",
+          "price",
+          "quantity",
+          "modifiers"
+        ]
       },
       "OrderDto": {
         "type": "object",

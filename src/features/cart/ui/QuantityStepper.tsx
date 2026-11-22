@@ -7,11 +7,12 @@ import { Button } from "@/shared/ui/button";
 import { MAX_QUANTITY, setQuantity } from "../model/cart-store";
 
 export function QuantityStepper({
-  menuItemId,
+  lineKey,
   name,
   quantity,
 }: {
-  menuItemId: number;
+  // Строка корзины (товар с набором добавок), а не товар целиком.
+  lineKey: string;
   name: string;
   quantity: number;
 }) {
@@ -23,7 +24,7 @@ export function QuantityStepper({
         size="icon"
         className="size-11"
         aria-label={`Убрать одну «${name}»`}
-        onClick={() => setQuantity(menuItemId, quantity - 1)}
+        onClick={() => setQuantity(lineKey, quantity - 1)}
       >
         <Minus aria-hidden="true" />
       </Button>
@@ -41,7 +42,7 @@ export function QuantityStepper({
         className="size-11"
         aria-label={`Добавить ещё «${name}»`}
         disabled={quantity >= MAX_QUANTITY}
-        onClick={() => setQuantity(menuItemId, quantity + 1)}
+        onClick={() => setQuantity(lineKey, quantity + 1)}
       >
         <Plus aria-hidden="true" />
       </Button>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ModifierGroupsSection } from "@/features/menu-admin/modifier-groups";
 import { MenuEditor } from "@/widgets/menu-editor";
 
 import { AdminPageGate } from "./AdminPageGate";
@@ -20,6 +21,7 @@ export function AdminMenuPage() {
           </p>
         </div>
         <MenuEditor />
+        <ModifierGroupsSection />
       </div>
     </AdminPageGate>
   );

@@ -9,6 +9,7 @@ import { http, unwrap } from "@/shared/api";
 
 import type {
   ManagedMenuCategory,
+  ManagedModifierGroup,
   MenuCategory,
   MenuItem,
 } from "../model/types";
@@ -20,6 +21,7 @@ export const menuKeys = {
   public: () => [...menuKeys.all, "public"] as const,
   manage: () => [...menuKeys.all, "manage"] as const,
   popular: (limit: number) => [...menuKeys.all, "popular", limit] as const,
+  modifierGroups: () => [...menuKeys.all, "modifier-groups"] as const,
 };
 
 async function fetchPublicMenu(): Promise<MenuCategory[]> {
@@ -73,6 +75,19 @@ export function managedMenuQueryOptions() {
 // Меню для панели: грузится в браузере с cookie сотрудника.
 export function useManagedMenu() {
   return useQuery(managedMenuQueryOptions());
+}
+
+async function fetchModifierGroups(): Promise<ManagedModifierGroup[]> {
+  return unwrap(await http.GET("/api/menu/modifier-groups"));
+}
+
+// Группы добавок для панели (с cookie сотрудника); общий префикс menuKeys.all —
+// правка меню и добавок обновляет и то и другое.
+export function useModifierGroups() {
+  return useQuery({
+    queryKey: menuKeys.modifierGroups(),
+    queryFn: fetchModifierGroups,
+  });
 }
 
 // После любой правки меню: перечитать и панель, и публичное меню.
