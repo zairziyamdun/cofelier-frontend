@@ -1,21 +1,29 @@
 "use client";
 
-import { ArrowRight, X } from "lucide-react";
-import Link from "next/link";
+import { Minus, Plus, X } from "lucide-react";
+import { useState } from "react";
 
 import {
+  defaultSelection,
   type MenuItem,
   MenuItemBadges,
   MenuPhotoImage,
+  type Selection,
+  selectedModifiers,
+  selectionErrors,
+  selectionPrice,
 } from "@/entities/menu-item";
-import { AddToCartButton } from "@/features/cart";
+import { addToCart } from "@/features/cart";
 import { formatPrice } from "@/shared/lib/format-price";
-import { cn } from "@/shared/lib/utils";
-import { buttonVariants } from "@/shared/ui/button";
+import { Button } from "@/shared/ui/button";
 import { Carousel } from "@/shared/ui/carousel";
 import { Dialog } from "@/shared/ui/dialog";
 
+import { ModifierPicker } from "./ModifierPicker";
+
 const PHOTO_SIZES = "(min-width: 640px) 32rem, 100vw";
+const MAX_SHEET_QUANTITY = 20;
+const NO_ERRORS: ReadonlyMap<number, string> = new Map();
 
 // Шторка товара: фото каруселью, описание и кнопка корзины внизу на виду.
 export function ProductSheet({
@@ -32,7 +40,10 @@ export function ProductSheet({
       title={item?.name ?? "Товар"}
       variant="sheet"
     >
-      {item && <ProductSheetContent item={item} onClose={onClose} />}
+      {/* key — новый товар начинает с чистого выбора добавок. */}
+      {item && (
+        <ProductSheetContent key={item.id} item={item} onClose={onClose} />
+      )}
     </Dialog>
   );
 }
@@ -44,6 +55,37 @@ function ProductSheetContent({
   item: MenuItem;
   onClose: () => void;
 }) {
+  const [selection, setSelection] = useState<Selection>(() =>
+    defaultSelection(item),
+  );
+  const [quantity, setQuantity] = useState(1);
+  // Ошибки групп — только после попытки добавить: не ругаемся раньше времени.
+  const [showErrors, setShowErrors] = useState(false);
+  const unitPrice = selectionPrice(item, selection);
+  const errors = new Map(
+    selectionErrors(item, selection).map(({ groupId, error }) => [
+      groupId,
+      error,
+    ]),
+  );
+
+  const add = () => {
+    if (errors.size > 0) {
+      setShowErrors(true);
+      return;
+    }
+    addToCart(
+      {
+        menuItemId: item.id,
+        name: item.name,
+        price: unitPrice,
+        modifiers: selectedModifiers(item, selection),
+      },
+      quantity,
+    );
+    onClose();
+  };
+
   const slides =
     item.photos.length > 0
       ? item.photos.map((photo, index) => (
@@ -81,7 +123,7 @@ function ProductSheetContent({
         <div className="flex items-baseline justify-between gap-4">
           <h2 className="font-heading text-2xl leading-tight">{item.name}</h2>
           <span className="shrink-0 text-lg font-semibold text-copper">
-            {formatPrice(item.price)}
+            {formatPrice(unitPrice)}
           </span>
         </div>
         {item.portion && (
@@ -90,27 +132,59 @@ function ProductSheetContent({
         {item.description && <p>{item.description}</p>}
       </div>
 
+      {item.isAvailable && item.modifierGroups.length > 0 && (
+        <div className="border-t border-border px-4 py-4 sm:px-6">
+          <ModifierPicker
+            groups={item.modifierGroups}
+            selection={selection}
+            errors={showErrors ? errors : NO_ERRORS}
+            onChange={setSelection}
+          />
+        </div>
+      )}
+
       {/* Кнопка липкая: при длинном описании она не уезжает за край экрана. */}
       <div className="sticky bottom-0 flex flex-wrap items-center gap-3 border-t border-border bg-card px-4 py-3 sm:px-6">
         {item.isAvailable ? (
           <>
-            <AddToCartButton
-              menuItemId={item.id}
-              name={item.name}
-              price={item.price}
-              label={`Добавить · ${formatPrice(item.price)}`}
-              className="min-h-12 flex-1 rounded-full border-copper bg-copper text-base text-charcoal hover:bg-copper/85 hover:text-charcoal dark:border-copper dark:bg-copper dark:hover:bg-copper/85"
-            />
-            <Link
-              href="/cart"
-              className={cn(
-                buttonVariants({ variant: "ghost" }),
-                "min-h-12 rounded-full px-4",
-              )}
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="size-11 rounded-full"
+                aria-label="Меньше"
+                disabled={quantity <= 1}
+                onClick={() => setQuantity((value) => value - 1)}
+              >
+                <Minus aria-hidden="true" />
+              </Button>
+              <span
+                aria-live="polite"
+                aria-label={`Количество: ${quantity}`}
+                className="w-8 text-center font-medium tabular-nums"
+              >
+                {quantity}
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="size-11 rounded-full"
+                aria-label="Больше"
+                disabled={quantity >= MAX_SHEET_QUANTITY}
+                onClick={() => setQuantity((value) => value + 1)}
+              >
+                <Plus aria-hidden="true" />
+              </Button>
+            </div>
+            <Button
+              type="button"
+              className="min-h-12 flex-1 rounded-full bg-copper text-base text-charcoal hover:bg-copper/85"
+              onClick={add}
             >
-              Корзина
-              <ArrowRight aria-hidden="true" />
-            </Link>
+              Добавить · {formatPrice(unitPrice * quantity)}
+            </Button>
           </>
         ) : (
           <p className="w-full rounded-full bg-muted px-4 py-3 text-center text-muted-foreground">
